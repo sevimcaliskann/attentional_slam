@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.5.1, 2017-11-22T21:07:15. -->
+<!-- Written by QtCreator 3.5.1, 2017-12-04T16:00:26. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -256,106 +256,6 @@
      <value type="int">13</value>
      <value type="int">14</value>
     </valuelist>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">gmapping-rtest</value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
-    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">gmapping-rtest</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.gmapping-rtest</value>
-    <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
-    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
-    <value type="bool" key="RunConfiguration.UseMultiProcess">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-   </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.11">
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableBranchSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableCacheSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableEventToolTips">true</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.MinimumCostRatio">0.01</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio">10</value>
-    <value type="bool" key="Analyzer.Valgrind.FilterExternalIssues">true</value>
-    <value type="int" key="Analyzer.Valgrind.LeakCheckOnFinish">1</value>
-    <value type="int" key="Analyzer.Valgrind.NumCallers">25</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.RemovedSuppressionFiles"/>
-    <value type="int" key="Analyzer.Valgrind.SelfModifyingCodeDetection">1</value>
-    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
-    <value type="bool" key="Analyzer.Valgrind.ShowReachable">false</value>
-    <value type="bool" key="Analyzer.Valgrind.TrackOrigins">true</value>
-    <value type="QString" key="Analyzer.Valgrind.ValgrindExecutable">valgrind</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.VisibleErrorKinds">
-     <value type="int">0</value>
-     <value type="int">1</value>
-     <value type="int">2</value>
-     <value type="int">3</value>
-     <value type="int">4</value>
-     <value type="int">5</value>
-     <value type="int">6</value>
-     <value type="int">7</value>
-     <value type="int">8</value>
-     <value type="int">9</value>
-     <value type="int">10</value>
-     <value type="int">11</value>
-     <value type="int">12</value>
-     <value type="int">13</value>
-     <value type="int">14</value>
-    </valuelist>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">odometry_publisher</value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
-    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">odometry_publisher</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.odometry_publisher</value>
-    <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
-    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
-    <value type="bool" key="RunConfiguration.UseMultiProcess">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-   </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.12">
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableBranchSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableCacheSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableEventToolTips">true</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.MinimumCostRatio">0.01</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio">10</value>
-    <value type="bool" key="Analyzer.Valgrind.FilterExternalIssues">true</value>
-    <value type="int" key="Analyzer.Valgrind.LeakCheckOnFinish">1</value>
-    <value type="int" key="Analyzer.Valgrind.NumCallers">25</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.RemovedSuppressionFiles"/>
-    <value type="int" key="Analyzer.Valgrind.SelfModifyingCodeDetection">1</value>
-    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
-    <value type="bool" key="Analyzer.Valgrind.ShowReachable">false</value>
-    <value type="bool" key="Analyzer.Valgrind.TrackOrigins">true</value>
-    <value type="QString" key="Analyzer.Valgrind.ValgrindExecutable">valgrind</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.VisibleErrorKinds">
-     <value type="int">0</value>
-     <value type="int">1</value>
-     <value type="int">2</value>
-     <value type="int">3</value>
-     <value type="int">4</value>
-     <value type="int">5</value>
-     <value type="int">6</value>
-     <value type="int">7</value>
-     <value type="int">8</value>
-     <value type="int">9</value>
-     <value type="int">10</value>
-     <value type="int">11</value>
-     <value type="int">12</value>
-     <value type="int">13</value>
-     <value type="int">14</value>
-    </valuelist>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">simple_navigation_goals</value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
@@ -371,7 +271,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.13">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.11">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -421,7 +321,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.14">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.12">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -471,7 +371,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.15">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.13">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -521,7 +421,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.16">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.14">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -571,7 +471,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.17">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.15">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -621,7 +521,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.18">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.16">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -671,7 +571,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.19">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.17">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -721,57 +621,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.2">
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableBranchSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableCacheSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableEventToolTips">true</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.MinimumCostRatio">0.01</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio">10</value>
-    <value type="bool" key="Analyzer.Valgrind.FilterExternalIssues">true</value>
-    <value type="int" key="Analyzer.Valgrind.LeakCheckOnFinish">1</value>
-    <value type="int" key="Analyzer.Valgrind.NumCallers">25</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.RemovedSuppressionFiles"/>
-    <value type="int" key="Analyzer.Valgrind.SelfModifyingCodeDetection">1</value>
-    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
-    <value type="bool" key="Analyzer.Valgrind.ShowReachable">false</value>
-    <value type="bool" key="Analyzer.Valgrind.TrackOrigins">true</value>
-    <value type="QString" key="Analyzer.Valgrind.ValgrindExecutable">valgrind</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.VisibleErrorKinds">
-     <value type="int">0</value>
-     <value type="int">1</value>
-     <value type="int">2</value>
-     <value type="int">3</value>
-     <value type="int">4</value>
-     <value type="int">5</value>
-     <value type="int">6</value>
-     <value type="int">7</value>
-     <value type="int">8</value>
-     <value type="int">9</value>
-     <value type="int">10</value>
-     <value type="int">11</value>
-     <value type="int">12</value>
-     <value type="int">13</value>
-     <value type="int">14</value>
-    </valuelist>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">frame_tf_broadcaster</value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
-    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">frame_tf_broadcaster</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.frame_tf_broadcaster</value>
-    <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
-    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
-    <value type="bool" key="RunConfiguration.UseMultiProcess">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-   </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.20">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.18">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -821,7 +671,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.21">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.19">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -871,7 +721,57 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.22">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.2">
+    <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableBranchSim">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableCacheSim">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableEventToolTips">true</value>
+    <value type="double" key="Analyzer.Valgrind.Callgrind.MinimumCostRatio">0.01</value>
+    <value type="double" key="Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio">10</value>
+    <value type="bool" key="Analyzer.Valgrind.FilterExternalIssues">true</value>
+    <value type="int" key="Analyzer.Valgrind.LeakCheckOnFinish">1</value>
+    <value type="int" key="Analyzer.Valgrind.NumCallers">25</value>
+    <valuelist type="QVariantList" key="Analyzer.Valgrind.RemovedSuppressionFiles"/>
+    <value type="int" key="Analyzer.Valgrind.SelfModifyingCodeDetection">1</value>
+    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.Valgrind.ShowReachable">false</value>
+    <value type="bool" key="Analyzer.Valgrind.TrackOrigins">true</value>
+    <value type="QString" key="Analyzer.Valgrind.ValgrindExecutable">valgrind</value>
+    <valuelist type="QVariantList" key="Analyzer.Valgrind.VisibleErrorKinds">
+     <value type="int">0</value>
+     <value type="int">1</value>
+     <value type="int">2</value>
+     <value type="int">3</value>
+     <value type="int">4</value>
+     <value type="int">5</value>
+     <value type="int">6</value>
+     <value type="int">7</value>
+     <value type="int">8</value>
+     <value type="int">9</value>
+     <value type="int">10</value>
+     <value type="int">11</value>
+     <value type="int">12</value>
+     <value type="int">13</value>
+     <value type="int">14</value>
+    </valuelist>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">turtle_tf_listener</value>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">turtle_tf_listener</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.turtle_tf_listener</value>
+    <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
+    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseMultiProcess">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+   </valuemap>
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.20">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -921,7 +821,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.23">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.21">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -971,7 +871,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.24">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.22">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -1021,7 +921,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.25">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.23">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -1106,106 +1006,6 @@
      <value type="int">13</value>
      <value type="int">14</value>
     </valuelist>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">turtle_tf_listener</value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
-    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">turtle_tf_listener</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.turtle_tf_listener</value>
-    <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
-    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
-    <value type="bool" key="RunConfiguration.UseMultiProcess">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-   </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.4">
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableBranchSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableCacheSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableEventToolTips">true</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.MinimumCostRatio">0.01</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio">10</value>
-    <value type="bool" key="Analyzer.Valgrind.FilterExternalIssues">true</value>
-    <value type="int" key="Analyzer.Valgrind.LeakCheckOnFinish">1</value>
-    <value type="int" key="Analyzer.Valgrind.NumCallers">25</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.RemovedSuppressionFiles"/>
-    <value type="int" key="Analyzer.Valgrind.SelfModifyingCodeDetection">1</value>
-    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
-    <value type="bool" key="Analyzer.Valgrind.ShowReachable">false</value>
-    <value type="bool" key="Analyzer.Valgrind.TrackOrigins">true</value>
-    <value type="QString" key="Analyzer.Valgrind.ValgrindExecutable">valgrind</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.VisibleErrorKinds">
-     <value type="int">0</value>
-     <value type="int">1</value>
-     <value type="int">2</value>
-     <value type="int">3</value>
-     <value type="int">4</value>
-     <value type="int">5</value>
-     <value type="int">6</value>
-     <value type="int">7</value>
-     <value type="int">8</value>
-     <value type="int">9</value>
-     <value type="int">10</value>
-     <value type="int">11</value>
-     <value type="int">12</value>
-     <value type="int">13</value>
-     <value type="int">14</value>
-    </valuelist>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">turtle_tf_broadcaster</value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
-    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
-    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">turtle_tf_broadcaster</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.turtle_tf_broadcaster</value>
-    <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
-    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
-    <value type="bool" key="RunConfiguration.UseMultiProcess">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
-    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-   </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.5">
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableBranchSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableCacheSim">false</value>
-    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableEventToolTips">true</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.MinimumCostRatio">0.01</value>
-    <value type="double" key="Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio">10</value>
-    <value type="bool" key="Analyzer.Valgrind.FilterExternalIssues">true</value>
-    <value type="int" key="Analyzer.Valgrind.LeakCheckOnFinish">1</value>
-    <value type="int" key="Analyzer.Valgrind.NumCallers">25</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.RemovedSuppressionFiles"/>
-    <value type="int" key="Analyzer.Valgrind.SelfModifyingCodeDetection">1</value>
-    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
-    <value type="bool" key="Analyzer.Valgrind.ShowReachable">false</value>
-    <value type="bool" key="Analyzer.Valgrind.TrackOrigins">true</value>
-    <value type="QString" key="Analyzer.Valgrind.ValgrindExecutable">valgrind</value>
-    <valuelist type="QVariantList" key="Analyzer.Valgrind.VisibleErrorKinds">
-     <value type="int">0</value>
-     <value type="int">1</value>
-     <value type="int">2</value>
-     <value type="int">3</value>
-     <value type="int">4</value>
-     <value type="int">5</value>
-     <value type="int">6</value>
-     <value type="int">7</value>
-     <value type="int">8</value>
-     <value type="int">9</value>
-     <value type="int">10</value>
-     <value type="int">11</value>
-     <value type="int">12</value>
-     <value type="int">13</value>
-     <value type="int">14</value>
-    </valuelist>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">vocus2</value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
@@ -1221,7 +1021,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.6">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.4">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -1271,7 +1071,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.7">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.5">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -1321,7 +1121,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.8">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.6">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -1371,7 +1171,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.9">
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.7">
     <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
     <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
@@ -1421,7 +1221,107 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
    </valuemap>
-   <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">26</value>
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.8">
+    <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableBranchSim">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableCacheSim">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableEventToolTips">true</value>
+    <value type="double" key="Analyzer.Valgrind.Callgrind.MinimumCostRatio">0.01</value>
+    <value type="double" key="Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio">10</value>
+    <value type="bool" key="Analyzer.Valgrind.FilterExternalIssues">true</value>
+    <value type="int" key="Analyzer.Valgrind.LeakCheckOnFinish">1</value>
+    <value type="int" key="Analyzer.Valgrind.NumCallers">25</value>
+    <valuelist type="QVariantList" key="Analyzer.Valgrind.RemovedSuppressionFiles"/>
+    <value type="int" key="Analyzer.Valgrind.SelfModifyingCodeDetection">1</value>
+    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.Valgrind.ShowReachable">false</value>
+    <value type="bool" key="Analyzer.Valgrind.TrackOrigins">true</value>
+    <value type="QString" key="Analyzer.Valgrind.ValgrindExecutable">valgrind</value>
+    <valuelist type="QVariantList" key="Analyzer.Valgrind.VisibleErrorKinds">
+     <value type="int">0</value>
+     <value type="int">1</value>
+     <value type="int">2</value>
+     <value type="int">3</value>
+     <value type="int">4</value>
+     <value type="int">5</value>
+     <value type="int">6</value>
+     <value type="int">7</value>
+     <value type="int">8</value>
+     <value type="int">9</value>
+     <value type="int">10</value>
+     <value type="int">11</value>
+     <value type="int">12</value>
+     <value type="int">13</value>
+     <value type="int">14</value>
+    </valuelist>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">gmapping-rtest</value>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">gmapping-rtest</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.gmapping-rtest</value>
+    <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
+    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseMultiProcess">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+   </valuemap>
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.9">
+    <valuelist type="QVariantList" key="Analyzer.Valgrind.AddedSuppressionFiles"/>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectBusEvents">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.CollectSystime">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableBranchSim">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableCacheSim">false</value>
+    <value type="bool" key="Analyzer.Valgrind.Callgrind.EnableEventToolTips">true</value>
+    <value type="double" key="Analyzer.Valgrind.Callgrind.MinimumCostRatio">0.01</value>
+    <value type="double" key="Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio">10</value>
+    <value type="bool" key="Analyzer.Valgrind.FilterExternalIssues">true</value>
+    <value type="int" key="Analyzer.Valgrind.LeakCheckOnFinish">1</value>
+    <value type="int" key="Analyzer.Valgrind.NumCallers">25</value>
+    <valuelist type="QVariantList" key="Analyzer.Valgrind.RemovedSuppressionFiles"/>
+    <value type="int" key="Analyzer.Valgrind.SelfModifyingCodeDetection">1</value>
+    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.Valgrind.ShowReachable">false</value>
+    <value type="bool" key="Analyzer.Valgrind.TrackOrigins">true</value>
+    <value type="QString" key="Analyzer.Valgrind.ValgrindExecutable">valgrind</value>
+    <valuelist type="QVariantList" key="Analyzer.Valgrind.VisibleErrorKinds">
+     <value type="int">0</value>
+     <value type="int">1</value>
+     <value type="int">2</value>
+     <value type="int">3</value>
+     <value type="int">4</value>
+     <value type="int">5</value>
+     <value type="int">6</value>
+     <value type="int">7</value>
+     <value type="int">8</value>
+     <value type="int">9</value>
+     <value type="int">10</value>
+     <value type="int">11</value>
+     <value type="int">12</value>
+     <value type="int">13</value>
+     <value type="int">14</value>
+    </valuelist>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguation.Title">odometry_publisher</value>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
+    <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">odometry_publisher</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.odometry_publisher</value>
+    <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
+    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseMultiProcess">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+   </valuemap>
+   <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">24</value>
   </valuemap>
  </data>
  <data>

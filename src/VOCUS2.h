@@ -47,6 +47,16 @@ enum ColorSpace{
 	ITTI = 3
 };
 
+enum FeatureChannels{
+    ON_OFF_L = 0,
+    OFF_ON_L = 1,
+    ON_OFF_A = 2,
+    OFF_ON_A = 3,
+    ON_OFF_B = 4,
+    OFF_ON_B = 5,
+    GABOR = 6
+};
+
 // fusing operation to build the feature, conspicuity and saliency map(s)
 enum FusionOperation{
 	ARITHMETIC_MEAN = 0,
@@ -73,18 +83,18 @@ class VOCUS2_Cfg{
 public:
 	// default constructor, default parameters
 	VOCUS2_Cfg(){
-		c_space = OPPONENT_CODI;
-		fuse_feature = ARITHMETIC_MEAN;
-		fuse_conspicuity = ARITHMETIC_MEAN;
+        c_space = OPPONENT_CODI;
+        fuse_feature = MAX;
+        fuse_conspicuity = UNIQUENESS_WEIGHT;
 		start_layer = 0;
-		stop_layer = 4;
+        stop_layer = 8;
 		center_sigma = 3;
 		surround_sigma = 13;
-		n_scales = 2;
+        n_scales = 4;
 		normalize = true;
-		pyr_struct = NEW;
-		orientation = false;
-		combined_features = false;
+        pyr_struct = CLASSIC;
+        orientation = false;
+        combined_features = false;
 	};
 
 	// constuctor for a given config file
@@ -170,6 +180,8 @@ public:
 	// write all intermediate results to the given directory
 	void write_out(string dir);
 
+    std::vector<cv::Mat> getFeatureChannel(const Mat& image, FeatureChannels name);
+
 private:
 	VOCUS2_Cfg cfg;
 	Mat input;
@@ -181,6 +193,10 @@ private:
 	vector<Mat> on_off_L, off_on_L;
 	vector<Mat> on_off_a, off_on_a;
 	vector<Mat> on_off_b, off_on_b;
+    vector<Mat> on_off_gabor0, off_on_gabor0;
+    vector<Mat> on_off_gabor45, off_on_gabor45;
+    vector<Mat> on_off_gabor90, off_on_gabor90;
+    vector<Mat> on_off_gabor135, off_on_gabor135;
 
 	// vector to hold the gabor pyramids
 	vector<vector<Mat> > gabor;
@@ -189,6 +205,7 @@ private:
 	vector<vector<Mat> > pyr_center_L, pyr_surround_L;
 	vector<vector<Mat> > pyr_center_a, pyr_surround_a;
 	vector<vector<Mat> > pyr_center_b, pyr_surround_b;
+
 
 	// vector to hold the edge (laplace) pyramid
 	vector<vector<Mat> > pyr_laplace;
@@ -218,6 +235,7 @@ private:
 	// uses pyr_center_L
 	void center_surround_diff();
 	void orientation();
+    void orientationWithCenterSurroundDiff();
 
 	// computes the uniqueness of a map by counting the local maxima
 	float compute_uniqueness_weight(Mat& map, float t);

@@ -205,17 +205,16 @@ vector<Point> get_msr(Mat& salmap){
 
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg, VOCUS2 &vocus){
-    cv_bridge::CvImagePtr cv_ptr;
-    geometry_msgs::PointStamped p_;
-    try
-    {
-      //cv::imshow("view", cv_bridge::toCvShare(msg, "bgr8")->image);
-      //cv::waitKey(30);
+    //cv_bridge::CvImagePtr cv_ptr;
+    //geometry_msgs::PointStamped p_;
+    //try
+    //{
 
-        cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::RGB8);
-        cv::Mat img = cv_ptr->image;
 
-        Mat salmap, img_rgb;
+        //cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::RGB8);
+        //cv::Mat img = cv_ptr->image;
+
+        /*Mat salmap, img_rgb;
         std::vector<cv::Mat> salmap_list;
 
         vocus.process(img);
@@ -265,13 +264,13 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg, VOCUS2 &vocus){
 
 
         sensor_msgs::ImagePtr img_msg = cv_bridge::CvImage(std_msgs::Header(), "rgb8", img_rgb).toImageMsg();
-        pub.publish(img_msg);
+        pub.publish(img_msg);*/
 
-    }
-    catch (cv_bridge::Exception& e)
-    {
-      ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
-    }
+    //}
+    //catch (cv_bridge::Exception& e)
+    //{
+      //ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
+    //}
 }
 
 
@@ -283,7 +282,7 @@ int main(int argc, char* argv[]) {
 
     ros::NodeHandle nh;
 
-    dynamic_reconfigure::Server<vocus2::vocus_paramsConfig> server;
+    /*dynamic_reconfigure::Server<vocus2::vocus_paramsConfig> server;
     dynamic_reconfigure::Server<vocus2::vocus_paramsConfig>::CallbackType f;
 
     f = boost::bind(&callback, _1, _2);
@@ -301,9 +300,23 @@ int main(int argc, char* argv[]) {
     //image_transport::Subscriber sub = it.subscribe("image", 1, &imageCallback);
     image_transport::Subscriber sub = it.subscribe("image", 1, boost::bind(imageCallback, _1, boost::ref(vocus)));
     pub = it.advertise("/marked_salient_image", 1);
-    pose = nh.advertise<geometry_msgs::PointStamped>("saliency_points", 1000);
+    pose = nh.advertise<geometry_msgs::PointStamped>("saliency_points", 1000);*/
 
-    ros::spin();
+
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/dots.png", CV_LOAD_IMAGE_COLOR);
+
+
+    vocus.process(img);
+    Mat tmp = vocus.get_salmap();
+    cv::normalize(tmp, tmp, 0, 255, NORM_MINMAX);
+    string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
+    imwrite(dir + "/salmap.png", tmp);
+    //vocus.write_out(dir);
+    cv::namedWindow("view", WINDOW_AUTOSIZE);
+    cv::imshow("view", tmp);
+    cv::waitKey(3000);
+
+    ros::spinOnce();
 	return EXIT_SUCCESS;
 }
 

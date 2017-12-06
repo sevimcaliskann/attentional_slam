@@ -166,7 +166,7 @@ void VOCUS2::process(const Mat& img){
 	// compute center surround contrast
 	center_surround_diff();		
 
-	if(cfg.orientation)	orientation();
+    if(cfg.orientation)	orientationWithCenterSurroundDiff();
 }
 
 	
@@ -198,6 +198,9 @@ void VOCUS2::pyramid_codi(const Mat& img){
 	float adapted_center_sigma = sqrt(pow(cfg.center_sigma,2)-1);
 	float adapted_surround_sigma = sqrt(pow(cfg.surround_sigma,2)-1);
 
+    std::cout << "adapted center sigma: " << adapted_center_sigma << std::endl;
+    std::cout << "adapted surround sigma:" << adapted_surround_sigma << std::endl;
+
 	// reserve space
 	pyr_center_L.resize(pyr_base_L.size());
 	pyr_center_a.resize(pyr_base_L.size());
@@ -222,14 +225,20 @@ void VOCUS2::pyramid_codi(const Mat& img){
 			float scaled_center_sigma = adapted_center_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
 			float scaled_surround_sigma = adapted_surround_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
 
-			GaussianBlur(pyr_base_L[o][s], pyr_center_L[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_base_L[o][s], pyr_surround_L[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+            GaussianBlur(pyr_base_L[o][s], pyr_center_L[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+            //cv::normalize(pyr_center_L[o][s], pyr_center_L[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
+            GaussianBlur(pyr_base_L[o][s], pyr_surround_L[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+            //cv::normalize(pyr_surround_L[o][s], pyr_surround_L[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
 
-			GaussianBlur(pyr_base_a[o][s], pyr_center_a[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_base_a[o][s], pyr_surround_a[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+            GaussianBlur(pyr_base_a[o][s], pyr_center_a[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+            //cv::normalize(pyr_center_a[o][s], pyr_center_a[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
+            GaussianBlur(pyr_base_a[o][s], pyr_surround_a[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+            //cv::normalize(pyr_surround_a[o][s], pyr_surround_a[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
 
-			GaussianBlur(pyr_base_b[o][s], pyr_center_b[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_base_b[o][s], pyr_surround_b[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+            GaussianBlur(pyr_base_b[o][s], pyr_center_b[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+            //cv::normalize(pyr_center_b[o][s], pyr_center_b[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
+            GaussianBlur(pyr_base_b[o][s], pyr_surround_b[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+            //cv::normalize(pyr_surround_b[o][s], pyr_surround_b[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
 		}
 	}
 }
@@ -301,16 +310,16 @@ void VOCUS2::pyramid_classic(const Mat& img){
 	pyr_center_a = build_multiscale_pyr(planes[1], (float)cfg.center_sigma);
 
 #pragma omp section
-	pyr_center_b = build_multiscale_pyr(planes[2], (float)cfg.center_sigma);
+    pyr_center_b = build_multiscale_pyr(planes[3], (float)cfg.center_sigma);
 
 #pragma omp section
 	pyr_surround_L = build_multiscale_pyr(planes[0], (float)cfg.surround_sigma);
 
 #pragma omp section
-	pyr_surround_a = build_multiscale_pyr(planes[1], (float)cfg.surround_sigma);
+    pyr_surround_a = build_multiscale_pyr(planes[2], (float)cfg.surround_sigma);
 
 #pragma omp section
-	pyr_surround_b = build_multiscale_pyr(planes[2], (float)cfg.surround_sigma);
+    pyr_surround_b = build_multiscale_pyr(planes[4], (float)cfg.surround_sigma);
 }
 }
 
@@ -335,18 +344,60 @@ void VOCUS2::center_surround_diff(){
 			threshold(diff, off_on_L[pos], 0, 1, THRESH_TOZERO);
 
 			// ========== a channel ==========
-			diff = pyr_center_a[o][s]-pyr_surround_a[o][s];
-			threshold(diff, on_off_a[pos], 0, 1, THRESH_TOZERO);
-			diff *= -1.f;
-			threshold(diff, off_on_a[pos], 0, 1, THRESH_TOZERO);
+            diff = pyr_center_a[o][s]-pyr_surround_a[o][s];
+            threshold(diff, on_off_a[pos], 0, 1, THRESH_TOZERO);
+            diff = pyr_surround_a[o][s] - pyr_center_a[o][s];
+            threshold(diff, off_on_a[pos], 0, 1, THRESH_TOZERO);
+
+            //cv::normalize(on_off_a[pos], diff, 0, 255, NORM_MINMAX);
+            //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/center.png", diff);
+            //cv::normalize(off_on_a[pos], diff, 0, 255, NORM_MINMAX);
+            //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/surround.png", diff);
 
 			// ========== b channel ==========
-			diff = pyr_center_b[o][s]-pyr_surround_b[o][s];
-			threshold(diff, on_off_b[pos], 0, 1, THRESH_TOZERO);
-			diff *= -1.f;
-			threshold(diff, off_on_b[pos], 0, 1, THRESH_TOZERO);
+            diff = pyr_center_b[o][s]-pyr_surround_b[o][s];
+            threshold(diff, off_on_b[pos], 0, 1, THRESH_TOZERO);
+            diff = pyr_surround_b[o][s] - pyr_center_b[o][s];
+            threshold(diff, on_off_b[pos], 0, 1, THRESH_TOZERO);
+
+            //cv::normalize(on_off_b[pos], diff, 0, 255, NORM_MINMAX);
+            //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/center2.png", diff);
+            //cv::normalize(off_on_b[pos], diff, 0, 255, NORM_MINMAX);
+            //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/surround2.png", diff);
 		}
 	}
+}
+
+std::vector<cv::Mat> VOCUS2::getFeatureChannel(const Mat& image, FeatureChannels name){
+    pyramid_classic(image);
+    center_surround_diff();
+    orientationWithCenterSurroundDiff();
+    switch(name){
+    case ON_OFF_L:
+        return on_off_L;
+    case OFF_ON_L:
+        return off_on_L;
+    case ON_OFF_A:
+        return on_off_a;
+    case OFF_ON_A:
+        return off_on_a;
+    case ON_OFF_B:
+        return on_off_b;
+    case OFF_ON_B:
+        return off_on_b;
+    case GABOR:{
+        /*std::vector<cv::Mat> gabors;
+        for(int i = 0; i< gabor.size(); i++){
+            for(int j = 0; j<gabor[i].size(); j++){
+                gabors.push_back(gabor[i][j]);
+            }
+        }
+        return gabors;*/
+        return on_off_gabor0;
+    }
+    default:
+        return on_off_L;
+    }
 }
 
 void VOCUS2::orientation(){
@@ -387,9 +438,6 @@ void VOCUS2::orientation(){
 
 		float k_sum =  sum(sum(abs(gaborKernel)))[0];
 		gaborKernel /= k_sum;
-		
-		double mi, ma;
-		minMaxLoc(gaborKernel, &mi, &ma);
 
 		for(int o = 0; o < (int)pyr_laplace.size(); o++){
 			for(int s = 0; s < cfg.n_scales; s++){
@@ -398,15 +446,131 @@ void VOCUS2::orientation(){
 				Mat& src = pyr_laplace[o][s];
 				Mat& dst = gabor[ori][pos];
 
-				minMaxLoc(src, &mi, &ma);
-
 				filter2D(src, dst, -1, gaborKernel);
 				
-				dst = abs(dst);
+                //dst = abs(dst);
+                threshold(dst, dst, 0, 1, THRESH_TOZERO);
+                //cv::normalize(dst, dst, 0, 255, NORM_MINMAX, CV_8UC1);
+                gabor[ori][pos] = dst;
+
 			}
 		}
 	}
 }
+
+
+
+
+
+void VOCUS2::orientationWithCenterSurroundDiff(){
+
+    int on_off_size = pyr_center_L.size()*cfg.n_scales;
+    int filter_size = 11*cfg.center_sigma+1;
+
+    on_off_gabor0.resize(on_off_size); off_on_gabor0.resize(on_off_size);
+    on_off_gabor45.resize(on_off_size); off_on_gabor45.resize(on_off_size);
+    on_off_gabor90.resize(on_off_size); off_on_gabor90.resize(on_off_size);
+    on_off_gabor135.resize(on_off_size); off_on_gabor135.resize(on_off_size);
+
+    Mat gaborKernel0 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, 0, 10, .5, 2*CV_PI);
+    Mat gaborKernel45 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, M_PI/4, 10, .5, 2*CV_PI);
+    Mat gaborKernel90 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (2*M_PI)/4, 10, .5, 2*CV_PI);
+    Mat gaborKernel135 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (3*M_PI)/4, 10, .5, 2*CV_PI);
+
+    float k_sum =  sum(sum(abs(gaborKernel0)))[0];
+    gaborKernel0 /= k_sum;
+    k_sum =  sum(sum(abs(gaborKernel45)))[0];
+    gaborKernel45 /= k_sum;
+    k_sum =  sum(sum(abs(gaborKernel90)))[0];
+    gaborKernel90 /= k_sum;
+    k_sum =  sum(sum(abs(gaborKernel135)))[0];
+    gaborKernel135 /= k_sum;
+    Mat tmp1, tmp2;
+
+
+    // compute DoG by subtracting layers of two pyramids
+    for(int o = 0; o < (int)pyr_center_L.size(); o++){
+#pragma omp parallel for
+        for(int s = 0; s < cfg.n_scales; s++){
+            Mat diff;
+            int pos = o*cfg.n_scales+s;
+
+            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel0);
+            //tmp1 = abs(tmp1);
+            //cv::normalize(tmp1, tmp1, 0, 255, NORM_MINMAX, CV_8UC1);
+            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel0);
+            //tmp2 = abs(tmp2);
+            //cv::normalize(tmp2, tmp2, 0, 255, NORM_MINMAX, CV_8UC1);
+            // ========== 0 channel ==========
+            diff = tmp1-tmp2;
+            threshold(diff, on_off_gabor0[pos], 0, 1, THRESH_TOZERO);
+            diff *= -1.f;
+            threshold(diff, off_on_gabor0[pos], 0, 1, THRESH_TOZERO);
+
+
+            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel45);
+            //tmp1 = abs(tmp1);
+            //cv::normalize(tmp1, tmp1, 0, 255, NORM_MINMAX, CV_8UC1);
+            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel45);
+            //tmp2 = abs(tmp2);
+            //cv::normalize(tmp2, tmp2, 0, 255, NORM_MINMAX, CV_8UC1);
+            // ========== 0 channel ==========
+            diff = tmp1-tmp2;
+            threshold(diff, on_off_gabor45[pos], 0, 1, THRESH_TOZERO);
+            diff *= -1.f;
+            threshold(diff, off_on_gabor45[pos], 0, 1, THRESH_TOZERO);
+
+
+            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel90);
+            //tmp1 = abs(tmp1);
+            //cv::normalize(tmp1, tmp1, 0, 255, NORM_MINMAX, CV_8UC1);
+            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel90);
+            //tmp2 = abs(tmp2);
+            //cv::normalize(tmp2, tmp2, 0, 255, NORM_MINMAX, CV_8UC1);
+            // ========== 0 channel ==========
+            diff = tmp1-tmp2;
+            threshold(diff, on_off_gabor90[pos], 0, 1, THRESH_TOZERO);
+            diff *= -1.f;
+            threshold(diff, off_on_gabor90[pos], 0, 1, THRESH_TOZERO);
+
+
+            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel135);
+            //tmp1 = abs(tmp1);
+            //cv::normalize(tmp1, tmp1, 0, 255, NORM_MINMAX, CV_8UC1);
+            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel135);
+            //tmp2 = abs(tmp2);
+            //cv::normalize(tmp2, tmp2, 0, 255, NORM_MINMAX, CV_8UC1);
+            // ========== 0 channel ==========
+            diff = tmp1-tmp2;
+            threshold(diff, on_off_gabor135[pos], 0, 1, THRESH_TOZERO);
+            diff *= -1.f;
+            threshold(diff, off_on_gabor135[pos], 0, 1, THRESH_TOZERO);
+
+
+        }
+
+        string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
+        Mat tmp;
+        cv::normalize(on_off_gabor0[0], tmp, 0, 255, NORM_MINMAX);
+        imwrite(dir + "/feature_gabor0_on.png", tmp);
+
+        cv::normalize(on_off_gabor90[0], tmp, 0, 255, NORM_MINMAX);
+        imwrite(dir + "/feature_gabor90_on.png", tmp);
+
+        cv::normalize(on_off_gabor45[0], tmp, 0, 255, NORM_MINMAX);
+        imwrite(dir + "/feature_gabor45_on.png", tmp);
+
+        cv::normalize(on_off_gabor135[0], tmp, 0, 255, NORM_MINMAX);
+        imwrite(dir + "/feature_gabor135_on.png", tmp);
+
+        //imwrite(dir + "/feature_gabor0_off.png", off_on_gabor0[0]);
+        //imwrite(dir + "/feature_gabor90_off.png", off_on_gabor90[0]);
+        //imwrite(dir + "/feature_gabor45_off.png", off_on_gabor45[0]);
+        //imwrite(dir + "/feature_gabor135_off.png", off_on_gabor135[0]);
+    }
+}
+
+
 
 Mat VOCUS2::get_salmap(){
 
@@ -429,43 +593,68 @@ Mat VOCUS2::get_salmap(){
 
 	if(cfg.combined_features){
 		feature_color1.push_back(fuse(on_off_a, cfg.fuse_feature));
-		feature_color1.push_back(fuse(off_on_a, cfg.fuse_feature));
+        feature_color1.push_back(fuse(off_on_a, cfg.fuse_feature));
 		feature_color1.push_back(fuse(on_off_b, cfg.fuse_feature)); 
-		feature_color1.push_back(fuse(off_on_b, cfg.fuse_feature));
+        feature_color1.push_back(fuse(off_on_b, cfg.fuse_feature));
+
 	}
 	else{
 		feature_color1.push_back(fuse(on_off_a, cfg.fuse_feature));
-		feature_color1.push_back(fuse(off_on_a, cfg.fuse_feature));
-		feature_color2.push_back(fuse(on_off_b, cfg.fuse_feature)); 
-		feature_color2.push_back(fuse(off_on_b, cfg.fuse_feature));
+        feature_color1.push_back(fuse(off_on_a, cfg.fuse_feature));
+        feature_color2.push_back(fuse(on_off_b, cfg.fuse_feature));
+        feature_color2.push_back(fuse(off_on_b, cfg.fuse_feature));
 	}
 
-	vector<Mat> feature_orientation;
+    vector<Mat> feature_orientation1, feature_orientation2, feature_orientation3, feature_orientation4;
 	if(cfg.orientation && cfg.combined_features){
-		for(int i = 0; i < 4; i++){		
-			feature_orientation.push_back(fuse(gabor[i], cfg.fuse_feature));
+        //for(int i = 0; i < 4; i++){
+            //feature_orientation.push_back(fuse(gabor[i], cfg.fuse_feature));
+            feature_orientation1.push_back(fuse(on_off_gabor0, cfg.fuse_feature));
+            feature_orientation1.push_back(fuse(on_off_gabor45, cfg.fuse_feature));
+            feature_orientation1.push_back(fuse(on_off_gabor90, cfg.fuse_feature));
+            feature_orientation1.push_back(fuse(on_off_gabor135, cfg.fuse_feature));
+
+            feature_orientation1.push_back(fuse(off_on_gabor0, cfg.fuse_feature));
+            feature_orientation1.push_back(fuse(off_on_gabor45, cfg.fuse_feature));
+            feature_orientation1.push_back(fuse(off_on_gabor90, cfg.fuse_feature));
+            feature_orientation1.push_back(fuse(off_on_gabor135, cfg.fuse_feature));
 //			imshow("ori feature", feature_orientation[i]); waitKey(0);
-		}
-	}
+        //}
+    }
+    else if(cfg.orientation && !cfg.combined_features){
+        feature_orientation1.push_back(fuse(on_off_gabor0, cfg.fuse_feature));
+        feature_orientation2.push_back(fuse(on_off_gabor45, cfg.fuse_feature));
+        feature_orientation3.push_back(fuse(on_off_gabor90, cfg.fuse_feature));
+        feature_orientation4.push_back(fuse(on_off_gabor135, cfg.fuse_feature));
+
+        feature_orientation1.push_back(fuse(off_on_gabor0, cfg.fuse_feature));
+        feature_orientation2.push_back(fuse(off_on_gabor45, cfg.fuse_feature));
+        feature_orientation3.push_back(fuse(off_on_gabor90, cfg.fuse_feature));
+        feature_orientation4.push_back(fuse(off_on_gabor135, cfg.fuse_feature));
+    }
 
 	// conspicuity maps
-	vector<Mat> conspicuity_maps;
-	conspicuity_maps.push_back(fuse(feature_intensity, cfg.fuse_conspicuity));
+    vector<Mat> conspicuity_maps;
+    //conspicuity_maps.push_back(fuse(feature_intensity, cfg.fuse_conspicuity));
 
-	if(cfg.combined_features){
-		conspicuity_maps.push_back(fuse(feature_color1, cfg.fuse_conspicuity));
-		if(cfg.orientation) conspicuity_maps.push_back(fuse(feature_orientation, cfg.fuse_conspicuity));
+    if(cfg.combined_features){
+        conspicuity_maps.push_back(fuse(feature_color1, cfg.fuse_conspicuity));
+        if(cfg.orientation) conspicuity_maps.push_back(fuse(feature_orientation1, cfg.fuse_conspicuity));
 		
 	}
 	else{
-		conspicuity_maps.push_back(fuse(feature_color1, cfg.fuse_conspicuity));
-		conspicuity_maps.push_back(fuse(feature_color2, cfg.fuse_conspicuity));
-		if(cfg.orientation){
-			for(int i = 0; i < 4; i++){		
-				conspicuity_maps.push_back(fuse(gabor[i], cfg.fuse_feature));
-			}
+        conspicuity_maps.push_back(fuse(feature_color1, cfg.fuse_conspicuity));
+        conspicuity_maps.push_back(fuse(feature_color2, cfg.fuse_conspicuity));
+        if(cfg.orientation){
+            //for(int i = 0; i < 4; i++){
+                //conspicuity_maps.push_back(fuse(gabor[i], cfg.fuse_feature));
+                conspicuity_maps.push_back(fuse(feature_orientation1, cfg.fuse_feature));
+                conspicuity_maps.push_back(fuse(feature_orientation2, cfg.fuse_feature));
+                conspicuity_maps.push_back(fuse(feature_orientation3, cfg.fuse_feature));
+                conspicuity_maps.push_back(fuse(feature_orientation4, cfg.fuse_feature));
+            //}
 		}
-	}
+    }
 
 
 
@@ -474,9 +663,10 @@ Mat VOCUS2::get_salmap(){
 
 	// normalize output to [0,1]
 	if(cfg.normalize){
-		double mi, ma;
-		minMaxLoc(salmap, &mi, &ma);
-		salmap = (salmap-mi)/(ma-mi);
+        //double mi, ma;
+        //minMaxLoc(salmap, &mi, &ma);
+        //salmap = (salmap-mi)/(ma-mi);
+        cv::normalize(salmap, salmap, 0, 1, NORM_MINMAX, CV_8UC1);
 	}
 
 	// resize to original image size
@@ -562,7 +752,7 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 	// fast compute unused first layers with one scale per layer
 	for(int o = 0; o < cfg.start_layer; o++){
 		GaussianBlur(tmp, tmp, Size(), 2.f*sigma, 2.f*sigma, BORDER_REPLICATE);
-		resize(tmp, tmp, Size(), 0.5, 0.5, INTER_NEAREST);
+        //resize(tmp, tmp, Size(), 0.5, 0.5, INTER_NEAREST);
 	}
 	
 	// reserve space
@@ -590,8 +780,8 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 
 			// if first scale of any other octave => subsample additional scale of previous layer
 			else if(o != 0 && s == 0){
-				Mat& src = pyr[o-1][cfg.n_scales];					
-				resize(src, dst, Size(src.cols/2, src.rows/2), 0, 0, INTER_NEAREST);
+                Mat& src = pyr[o-1][cfg.n_scales];
+                resize(src, dst, Size(src.cols, src.rows), 0, 0, INTER_NEAREST);
 				sig_prev = sigma;
 			}
 
@@ -823,6 +1013,8 @@ Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op){
 		if(sum_weights > 0) fused /= sum_weights;
 	}
 
+    cv::normalize(fused, fused, 0, 255, NORM_MINMAX);
+
 	return fused;
 }
 
@@ -830,10 +1022,10 @@ vector<Mat> VOCUS2::prepare_input(const Mat& img){
 
 	CV_Assert(img.channels() == 3);
 	vector<Mat> planes;
-	planes.resize(3);
+    planes.resize(5);
 
 	// convert colorspace and split to single planes
-	if(cfg.c_space == LAB){
+    /*if(cfg.c_space == LAB){
 		Mat converted;
 		// convert colorspace (important: before conversion to float to keep range [0:255])
 		cvtColor(img, converted, CV_BGR2Lab);
@@ -845,23 +1037,35 @@ vector<Mat> VOCUS2::prepare_input(const Mat& img){
 	}
 
 	// opponent color as in CoDi (todo: maybe faster with openmp)
-	else if(cfg.c_space == OPPONENT_CODI){
+    else */
+    if(cfg.c_space == OPPONENT_CODI){
 		Mat converted;
 		img.convertTo(converted, CV_32FC3);
 
 		vector<Mat> planes_bgr;
 		split(converted, planes_bgr);
 
-		planes[0] = planes_bgr[0] + planes_bgr[1] + planes_bgr[2];
-		planes[0] /= 3*255.f;
+        planes[0] = planes_bgr[0] + planes_bgr[1] + planes_bgr[2];
+        planes[0] /= 3*255.f;
 
-		planes[1] = planes_bgr[2] - planes_bgr[1];
-		planes[1] /= 255.f;
+        planes[1] = planes_bgr[2] - planes_bgr[1] -2*planes[0];
+        threshold(planes[1], planes[1], 0, 1, THRESH_TOZERO);
+        planes[1] /= 255.f;
 
-		planes[2] = planes_bgr[0] - (planes_bgr[1] + planes_bgr[2])/2.f;
-		planes[2] /= 255.f;
+        planes[2] = planes_bgr[1] - planes_bgr[2] - 2*planes[0];
+        threshold(planes[2], planes[2], 0, 1, THRESH_TOZERO);
+        planes[2] /= 255.f;
+
+        planes[3] = planes_bgr[0] - (planes_bgr[1] + planes_bgr[2])/2.f - 2*planes[0];
+        threshold(planes[3], planes[3], 0, 1, THRESH_TOZERO);
+        planes[3] /= 255.f;
+
+        planes[4] = (planes_bgr[1] + planes_bgr[2])/2.f - planes_bgr[0] - 2*planes[0];
+        threshold(planes[4], planes[4], 0, 1, THRESH_TOZERO);
+        planes[4] /= 255.f;
 	}
 	else if(cfg.c_space == OPPONENT){
+
 		Mat converted;
 		img.convertTo(converted, CV_32FC3);
 
@@ -869,13 +1073,24 @@ vector<Mat> VOCUS2::prepare_input(const Mat& img){
 		split(converted, planes_bgr);
 
 		planes[0] = planes_bgr[0] + planes_bgr[1] + planes_bgr[2];
-		planes[0] /= 3*255.f;
+        planes[0] /= 3*255.f;
 
-		planes[1] = planes_bgr[2] - planes_bgr[1] + 255.f;
-		planes[1] /= 2*255.f;
-		
-		planes[2] = planes_bgr[0] - (planes_bgr[1] + planes_bgr[2])/2.f + 255.f;
-		planes[2] /= 2*255.f;
+        planes[1] = planes_bgr[2] - planes_bgr[1] -2*planes[0]+255.f;
+        threshold(planes[1], planes[1], 0, 1, THRESH_TOZERO);
+        planes[1] /= 2*255.f;
+
+        planes[2] = planes_bgr[1] - planes_bgr[2] - 2*planes[0]+255.f;
+        threshold(planes[2], planes[2], 0, 1, THRESH_TOZERO);
+        planes[2] /= 2*255.f;
+
+        planes[3] = planes_bgr[0] - (planes_bgr[1] + planes_bgr[2])/2.f - 2*planes[0]+255.f;
+        threshold(planes[3], planes[3], 0, 1, THRESH_TOZERO);
+        planes[3] /= 2*255.f;
+
+        planes[4] = (planes_bgr[1] + planes_bgr[2])/2.f - planes_bgr[0] - 2*planes[0]+255.f;
+        threshold(planes[4], planes[4], 0, 1, THRESH_TOZERO);
+        planes[4] /= 2*255.f;
+
 	}
 	else{
 		Mat converted;

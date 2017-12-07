@@ -84,8 +84,8 @@ public:
 	// default constructor, default parameters
 	VOCUS2_Cfg(){
         c_space = OPPONENT_CODI;
-        fuse_feature = MAX;
-        fuse_conspicuity = UNIQUENESS_WEIGHT;
+        fuse_feature = ARITHMETIC_MEAN;
+        fuse_conspicuity = ARITHMETIC_MEAN;
 		start_layer = 0;
         stop_layer = 8;
         center_sigma = 3;
@@ -199,12 +199,11 @@ private:
     vector<Mat> on_off_gabor135, off_on_gabor135;
 
 	// vector to hold the gabor pyramids
-	vector<vector<Mat> > gabor;
 
 	// vectors to hold center and surround gaussian pyramids
-	vector<vector<Mat> > pyr_center_L, pyr_surround_L;
-	vector<vector<Mat> > pyr_center_a, pyr_surround_a;
-	vector<vector<Mat> > pyr_center_b, pyr_surround_b;
+    vector<Mat> pyr_center_L, pyr_surround_L;
+    vector<Mat> pyr_center_a, pyr_surround_a;
+    vector<Mat> pyr_center_b, pyr_surround_b;
 
 
 	// vector to hold the edge (laplace) pyramid
@@ -226,7 +225,7 @@ private:
 	void clear();
 
 	// build a multi scale representation based on [Lowe2004]
-	vector<vector<Mat> > build_multiscale_pyr(Mat& img, float sigma = 1.f);
+    vector<Mat> build_multiscale_pyr(Mat& img, float sigma = 1.f);
 
 	// combines a vector of Mats into a single mat
 	Mat fuse(vector<Mat> mat_array, FusionOperation op);
@@ -234,7 +233,6 @@ private:
 	// computes the center surround contrast
 	// uses pyr_center_L
 	void center_surround_diff();
-	void orientation();
     void orientationWithCenterSurroundDiff();
 
 	// computes the uniqueness of a map by counting the local maxima

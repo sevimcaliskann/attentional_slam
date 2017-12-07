@@ -60,25 +60,23 @@ void VOCUS2::write_out(string dir){
 	std::cout << "Writing intermediate results to directory: " << dir <<"/"<< endl; 
 	
 	for(int i = 0; i < (int)pyr_center_L.size(); i++){
-		for(int j = 0; j < (int)pyr_center_L[i].size(); j++){
-			minMaxLoc(pyr_center_L[i][j], &mi, &ma);
-            imwrite(dir + "/pyr_center_L_" + to_string(i) + "_" + to_string(j) + ".png", (pyr_center_L[i][j]-mi)/(ma-mi)*255.f);
+        minMaxLoc(pyr_center_L[i], &mi, &ma);
+        imwrite(dir + "/pyr_center_L_" + to_string(i) + ".png", (pyr_center_L[i]-mi)/(ma-mi)*255.f);
 
-			minMaxLoc(pyr_center_a[i][j], &mi, &ma);
-            imwrite(dir + "/pyr_center_a_" + to_string(i) + "_" + to_string(j) + ".png", (pyr_center_a[i][j]-mi)/(ma-mi)*255.f);
+        minMaxLoc(pyr_center_a[i], &mi, &ma);
+        imwrite(dir + "/pyr_center_a_" + to_string(i) + ".png", (pyr_center_a[i]-mi)/(ma-mi)*255.f);
 
-			minMaxLoc(pyr_center_b[i][j], &mi, &ma);
-            imwrite(dir + "/pyr_center_b_" + to_string(i) + "_" + to_string(j) + ".png", (pyr_center_b[i][j]-mi)/(ma-mi)*255.f);
+        minMaxLoc(pyr_center_b[i], &mi, &ma);
+        imwrite(dir + "/pyr_center_b_" + to_string(i) + ".png", (pyr_center_b[i]-mi)/(ma-mi)*255.f);
 
-			minMaxLoc(pyr_surround_L[i][j], &mi, &ma);
-            imwrite(dir + "/pyr_surround_L_" + to_string(i) + "_" + to_string(j) + ".png", (pyr_surround_L[i][j]-mi)/(ma-mi)*255.f);
+        minMaxLoc(pyr_surround_L[i], &mi, &ma);
+        imwrite(dir + "/pyr_surround_L_" + to_string(i) + ".png", (pyr_surround_L[i]-mi)/(ma-mi)*255.f);
 
-			minMaxLoc(pyr_surround_a[i][j], &mi, &ma);
-            imwrite(dir + "/pyr_surround_a_" + to_string(i) + "_" + to_string(j) + ".png", (pyr_surround_a[i][j]-mi)/(ma-mi)*255.f);
+        minMaxLoc(pyr_surround_a[i], &mi, &ma);
+        imwrite(dir + "/pyr_surround_a_" + to_string(i) + ".png", (pyr_surround_a[i]-mi)/(ma-mi)*255.f);
 
-			minMaxLoc(pyr_surround_b[i][j], &mi, &ma);
-            imwrite(dir + "/pyr_surround_b_" + to_string(i) + "_" + to_string(j) + ".png", (pyr_surround_b[i][j]-mi)/(ma-mi)*255.f);
-		}
+        minMaxLoc(pyr_surround_b[i], &mi, &ma);
+        imwrite(dir + "/pyr_surround_b_" + to_string(i) + ".png", (pyr_surround_b[i]-mi)/(ma-mi)*255.f);
 	}
 
 	for(int i = 0; i < (int)on_off_L.size(); i++){
@@ -167,6 +165,7 @@ void VOCUS2::process(const Mat& img){
 	center_surround_diff();		
 
     if(cfg.orientation)	orientationWithCenterSurroundDiff();
+
 }
 
 	
@@ -182,7 +181,7 @@ void VOCUS2::pyramid_codi(const Mat& img){
 	planes = prepare_input(img);
 	
 	// create base pyramids
-	vector<vector<Mat> > pyr_base_L, pyr_base_a, pyr_base_b;
+    vector<Mat> pyr_base_L, pyr_base_a, pyr_base_b;
 #pragma omp parallel sections
 	{
 #pragma omp section
@@ -211,35 +210,27 @@ void VOCUS2::pyramid_codi(const Mat& img){
 
 	// for every layer of the pyramid
 	for(int o = 0; o < (int)pyr_base_L.size(); o++){
-		pyr_center_L[o].resize(cfg.n_scales);
-		pyr_center_a[o].resize(cfg.n_scales);
-		pyr_center_b[o].resize(cfg.n_scales);
-		pyr_surround_L[o].resize(cfg.n_scales);
-		pyr_surround_a[o].resize(cfg.n_scales);
-		pyr_surround_b[o].resize(cfg.n_scales);
 
 		// for all scales build the center and surround pyramids independently
 #pragma omp parallel for
-		for(int s = 0; s < cfg.n_scales; s++){
 
-			float scaled_center_sigma = adapted_center_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
-			float scaled_surround_sigma = adapted_surround_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
+            float scaled_center_sigma = adapted_center_sigma*pow(2.0, (double)o/(double)pyr_base_L.size());
+            float scaled_surround_sigma = adapted_surround_sigma*pow(2.0, (double)o/(double)pyr_base_L.size());
 
-            GaussianBlur(pyr_base_L[o][s], pyr_center_L[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+            GaussianBlur(pyr_base_L[o], pyr_center_L[o], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
             //cv::normalize(pyr_center_L[o][s], pyr_center_L[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
-            GaussianBlur(pyr_base_L[o][s], pyr_surround_L[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+            GaussianBlur(pyr_base_L[o], pyr_surround_L[o], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
             //cv::normalize(pyr_surround_L[o][s], pyr_surround_L[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
 
-            GaussianBlur(pyr_base_a[o][s], pyr_center_a[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+            GaussianBlur(pyr_base_a[o], pyr_center_a[o], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
             //cv::normalize(pyr_center_a[o][s], pyr_center_a[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
-            GaussianBlur(pyr_base_a[o][s], pyr_surround_a[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+            GaussianBlur(pyr_base_a[o], pyr_surround_a[o], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
             //cv::normalize(pyr_surround_a[o][s], pyr_surround_a[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
 
-            GaussianBlur(pyr_base_b[o][s], pyr_center_b[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+            GaussianBlur(pyr_base_b[o], pyr_center_b[o], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
             //cv::normalize(pyr_center_b[o][s], pyr_center_b[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
-            GaussianBlur(pyr_base_b[o][s], pyr_surround_b[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+            GaussianBlur(pyr_base_b[o], pyr_surround_b[o], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
             //cv::normalize(pyr_surround_b[o][s], pyr_surround_b[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
-		}
 	}
 }
 
@@ -274,19 +265,14 @@ void VOCUS2::pyramid_new(const Mat& img){
 
 	// for all layers
 	for(int o = 0; o < (int)pyr_center_L.size(); o++){
-		pyr_surround_L[o].resize(cfg.n_scales);
-		pyr_surround_a[o].resize(cfg.n_scales);
-		pyr_surround_b[o].resize(cfg.n_scales);
 
 		// for all scales, compute surround counterpart
 #pragma omp parallel for
-		for(int s = 0; s < cfg.n_scales; s++){
-			float scaled_sigma = adapted_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
+        float scaled_sigma = adapted_sigma*pow(2.0, (double)o/(double)pyr_center_L.size());
 
-			GaussianBlur(pyr_center_L[o][s], pyr_surround_L[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_center_a[o][s], pyr_surround_a[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_center_b[o][s], pyr_surround_b[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
-		}
+        GaussianBlur(pyr_center_L[o], pyr_surround_L[o], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
+        GaussianBlur(pyr_center_a[o], pyr_surround_a[o], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
+        GaussianBlur(pyr_center_b[o], pyr_surround_b[o], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
 	}
 }
 
@@ -321,50 +307,59 @@ void VOCUS2::pyramid_classic(const Mat& img){
 #pragma omp section
     pyr_surround_b = build_multiscale_pyr(planes[4], (float)cfg.surround_sigma);
 }
+
+
+}
+
+vector<Mat> VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
+
+    Mat tmp = mat.clone();
+    // reserve space
+    vector<Mat > pyr;
+    int num_layer = cfg.stop_layer-cfg.start_layer+1;
+    pyr.resize(num_layer);
+
+    // compute pyramid as it is done in [Lowe2004]
+    float sig = 0.0f;
+
+    for(int o = cfg.start_layer; o <= cfg.stop_layer; o++){
+        sig = pow(2.0, o)*sigma;
+        GaussianBlur(tmp, pyr[o], Size(), sig, sig, BORDER_REPLICATE);
+    }
+    return pyr;
 }
 
 void VOCUS2::center_surround_diff(){
-	int on_off_size = pyr_center_L.size()*cfg.n_scales;
+    int on_off_size = 3*2;
 
 	on_off_L.resize(on_off_size); off_on_L.resize(on_off_size);
 	on_off_a.resize(on_off_size); off_on_a.resize(on_off_size);
 	on_off_b.resize(on_off_size); off_on_b.resize(on_off_size);
-
+    int pos = 0;
 	// compute DoG by subtracting layers of two pyramids
-	for(int o = 0; o < (int)pyr_center_L.size(); o++){
-#pragma omp parallel for
-		for(int s = 0; s < cfg.n_scales; s++){
-			Mat diff;
-			int pos = o*cfg.n_scales+s;
+    for(int o = 2; o <= (int)4; o++){
+        for(int s = 1; s<=2; s++){
+    #pragma omp parallel for
+            Mat diff;
+            // ========== L channel ==========
+            diff = pyr_center_L[o]-pyr_surround_L[o+s+2];
+            threshold(diff, on_off_L[pos], 0, 1, THRESH_TOZERO);
+            diff *= -1.f;
+            threshold(diff, off_on_L[pos], 0, 1, THRESH_TOZERO);
 
-			// ========== L channel ==========
-			diff = pyr_center_L[o][s]-pyr_surround_L[o][s];
-			threshold(diff, on_off_L[pos], 0, 1, THRESH_TOZERO);
-			diff *= -1.f;
-			threshold(diff, off_on_L[pos], 0, 1, THRESH_TOZERO);
-
-			// ========== a channel ==========
-            diff = pyr_center_a[o][s]-pyr_surround_a[o][s];
+            // ========== a channel ==========
+            diff = pyr_center_a[o]-pyr_surround_a[o+s+2];
             threshold(diff, on_off_a[pos], 0, 1, THRESH_TOZERO);
-            diff = pyr_surround_a[o][s] - pyr_center_a[o][s];
+            diff = pyr_surround_a[o] - pyr_center_a[s];
             threshold(diff, off_on_a[pos], 0, 1, THRESH_TOZERO);
 
-            //cv::normalize(on_off_a[pos], diff, 0, 255, NORM_MINMAX);
-            //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/center.png", diff);
-            //cv::normalize(off_on_a[pos], diff, 0, 255, NORM_MINMAX);
-            //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/surround.png", diff);
-
-			// ========== b channel ==========
-            diff = pyr_center_b[o][s]-pyr_surround_b[o][s];
+            // ========== b channel ==========
+            diff = pyr_center_b[o]-pyr_surround_b[o+s+2];
             threshold(diff, off_on_b[pos], 0, 1, THRESH_TOZERO);
-            diff = pyr_surround_b[o][s] - pyr_center_b[o][s];
+            diff = pyr_surround_b[o] - pyr_center_b[o+s+2];
             threshold(diff, on_off_b[pos], 0, 1, THRESH_TOZERO);
-
-            //cv::normalize(on_off_b[pos], diff, 0, 255, NORM_MINMAX);
-            //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/center2.png", diff);
-            //cv::normalize(off_on_b[pos], diff, 0, 255, NORM_MINMAX);
-            //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/surround2.png", diff);
-		}
+            pos++;
+        }
 	}
 }
 
@@ -400,71 +395,10 @@ std::vector<cv::Mat> VOCUS2::getFeatureChannel(const Mat& image, FeatureChannels
     }
 }
 
-void VOCUS2::orientation(){
-
-	// reserve space
-	pyr_laplace.resize(pyr_center_L.size());
-	for(int o = 0; o < (int)pyr_center_L.size(); o++){
-		pyr_laplace[o].resize(pyr_center_L[o].size());
-	}
-
-	gabor.resize(4);
-	for(int i = 0; i < 4; i++) gabor[i].resize(pyr_center_L.size()*cfg.n_scales);
-
-
-	// build all layers of laplace pyramid except the last one
-#pragma omp parallel for
-	for(int o = 0; o < (int)pyr_center_L.size()-1; o++){
-		for(int s = 0; s < (int)pyr_center_L[o].size(); s++){
-			Mat& src1 = pyr_center_L[o][s];
-			Mat& src2 = pyr_center_L[o+1][s];
-
-			Mat tmp;
-			resize(src2, tmp, src1.size(), INTER_NEAREST);
-
-			pyr_laplace[o][s] = src1-tmp;
-		}
-	}
-
-	// copy last layer
-	for(int s = 0; s < cfg.n_scales; s++){
-		pyr_laplace[pyr_center_L.size()-1][s] = pyr_center_L[pyr_center_L.size()-1][s];
-	}
-
-	int filter_size = 11*cfg.center_sigma+1;
-
-	for(int ori = 0; ori < 4; ori++){
-		Mat gaborKernel = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, 10, .5, 2*CV_PI);
-
-		float k_sum =  sum(sum(abs(gaborKernel)))[0];
-		gaborKernel /= k_sum;
-
-		for(int o = 0; o < (int)pyr_laplace.size(); o++){
-			for(int s = 0; s < cfg.n_scales; s++){
-				int pos = o*cfg.n_scales+s;
-				
-				Mat& src = pyr_laplace[o][s];
-				Mat& dst = gabor[ori][pos];
-
-				filter2D(src, dst, -1, gaborKernel);
-				
-                //dst = abs(dst);
-                threshold(dst, dst, 0, 1, THRESH_TOZERO);
-                //cv::normalize(dst, dst, 0, 255, NORM_MINMAX, CV_8UC1);
-                gabor[ori][pos] = dst;
-
-			}
-		}
-	}
-}
-
-
-
-
 
 void VOCUS2::orientationWithCenterSurroundDiff(){
 
-    int on_off_size = pyr_center_L.size()*cfg.n_scales;
+    int on_off_size = 3*2;
     int filter_size = 11*cfg.center_sigma+1;
 
     on_off_gabor0.resize(on_off_size); off_on_gabor0.resize(on_off_size);
@@ -486,20 +420,19 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
     k_sum =  sum(sum(abs(gaborKernel135)))[0];
     gaborKernel135 /= k_sum;
     Mat tmp1, tmp2;
-
-    string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
-    Mat tmp;
+    int pos = 0;
+    //string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
+    //Mat tmp;
     // compute DoG by subtracting layers of two pyramids
-    for(int o = 0; o < (int)pyr_center_L.size(); o++){
+
+
+    for(int o = 2; o <=4; o++){
 #pragma omp parallel for
-        for(int s = 0; s < cfg.n_scales; s++){
+        for(int s = 1; s <=2; s++){
             Mat diff;
-            int pos = o*cfg.n_scales+s;
-
-
             // ========== 0 channel ==========
-            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel0, Point(-1,-1), 0, BORDER_REPLICATE);
-            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel0, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_center_L[o], tmp1, -1, gaborKernel0, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_surround_L[o+s+2], tmp2, -1, gaborKernel0, Point(-1,-1), 0, BORDER_REPLICATE);
 
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor0[pos], 0, 1, THRESH_TOZERO);
@@ -513,8 +446,8 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 
 
             // ========== 45 channel ==========
-            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel45, Point(-1,-1), 0, BORDER_REPLICATE);
-            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel45, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_center_L[o], tmp1, -1, gaborKernel45, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_surround_L[o+s+2], tmp2, -1, gaborKernel45, Point(-1,-1), 0, BORDER_REPLICATE);
 
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor45[pos], 0, 1, THRESH_TOZERO);
@@ -528,8 +461,8 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 
 
             // ========== 90 channel ==========
-            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel90, Point(-1,-1), 0, BORDER_REPLICATE);
-            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel90, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_center_L[o], tmp1, -1, gaborKernel90, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_surround_L[o+s+2], tmp2, -1, gaborKernel90, Point(-1,-1), 0, BORDER_REPLICATE);
 
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor90[pos], 0, 1, THRESH_TOZERO);
@@ -544,8 +477,8 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 
 
             // ========== 135 channel ==========
-            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel135, Point(-1,-1), 0, BORDER_REPLICATE);
-            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel135, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_center_L[o], tmp1, -1, gaborKernel135, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_surround_L[o+s+2], tmp2, -1, gaborKernel135, Point(-1,-1), 0, BORDER_REPLICATE);
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor135[pos], 0, 1, THRESH_TOZERO);
             //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
@@ -554,6 +487,8 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
             threshold(diff, off_on_gabor135[pos], 0, 1, THRESH_TOZERO);
             //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
             //imwrite(dir + "/feature_gabor135_off.png", diff);
+
+            pos++;
 
 
         }
@@ -609,7 +544,6 @@ Mat VOCUS2::get_salmap(){
             feature_orientation1.push_back(fuse(off_on_gabor45, cfg.fuse_feature));
             feature_orientation1.push_back(fuse(off_on_gabor90, cfg.fuse_feature));
             feature_orientation1.push_back(fuse(off_on_gabor135, cfg.fuse_feature));
-//			imshow("ori feature", feature_orientation[i]); waitKey(0);
         //}
     }
     else if(cfg.orientation && !cfg.combined_features){
@@ -731,70 +665,7 @@ vector<Mat> VOCUS2::get_splitted_salmap(){
 	return salmap_splitted;
 }
 
-//Build multiscale pyramid
-vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 
-	// maximum layer = how often can the image by halfed in the smaller dimension
-	// a 320x256 can produce at most 8 layers because 2^8=256
-	int max_octaves = min((int)log2(min(mat.rows, mat.cols)), cfg.stop_layer)+1;
-
-	Mat tmp = mat.clone();
-
-	// fast compute unused first layers with one scale per layer
-	for(int o = 0; o < cfg.start_layer; o++){
-		GaussianBlur(tmp, tmp, Size(), 2.f*sigma, 2.f*sigma, BORDER_REPLICATE);
-        //resize(tmp, tmp, Size(), 0.5, 0.5, INTER_NEAREST);
-	}
-	
-	// reserve space
-	vector<vector<Mat> > pyr;
-	pyr.resize(max_octaves-cfg.start_layer);
-	
-	// compute pyramid as it is done in [Lowe2004]
-	float sig_prev = 0.f, sig_total = 0.f;
-	
-	for(int o = 0; o < max_octaves-cfg.start_layer; o++){
-		pyr[o].resize(cfg.n_scales+1);
-
-		// compute an additional scale that is used as the first scale of the next octave
-		for(int s = 0; s <= cfg.n_scales; s++){
-			Mat& dst = pyr[o][s];
-
-			// if first scale of first used octave => just smooth tmp
-			if(o == 0 && s == 0){
-				Mat& src = tmp;
-
-				sig_total = pow(2.0, ((double)s/(double)cfg.n_scales))*sigma;
-				GaussianBlur(src, dst, Size(), sig_total, sig_total, BORDER_REPLICATE);
-				sig_prev = sig_total;
-			}
-
-			// if first scale of any other octave => subsample additional scale of previous layer
-			else if(o != 0 && s == 0){
-                Mat& src = pyr[o-1][cfg.n_scales];
-                resize(src, dst, Size(src.cols, src.rows), 0, 0, INTER_NEAREST);
-				sig_prev = sigma;
-			}
-
-			// else => smooth an intermediate step
-			else{
-				sig_total = pow(2.0, ((double)s/(double)cfg.n_scales))*sigma;
-				float sig_diff = sqrt(sig_total*sig_total - sig_prev*sig_prev);
-
-				Mat& src = pyr[o][s-1];
-				GaussianBlur(src, dst, Size(), sig_diff, sig_diff, BORDER_REPLICATE);
-				sig_prev = sig_total;
-			}
-		}
-	}
-
-	// erase all the additional scale of each layer
-	for(auto& o : pyr){
-		o.erase(o.begin()+cfg.n_scales);
-	}
-
-	return pyr;
-}
 
 float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 

@@ -88,13 +88,13 @@ public:
         fuse_conspicuity = UNIQUENESS_WEIGHT;
 		start_layer = 0;
         stop_layer = 8;
-		center_sigma = 3;
-		surround_sigma = 13;
+        center_sigma = 3;
+        surround_sigma = 15;
         n_scales = 4;
-		normalize = true;
+        normalize = true;
         pyr_struct = CLASSIC;
-        orientation = false;
-        combined_features = false;
+        orientation = true;
+        combined_features = true;
 	};
 
 	// constuctor for a given config file

@@ -303,7 +303,7 @@ int main(int argc, char* argv[]) {
     pose = nh.advertise<geometry_msgs::PointStamped>("saliency_points", 1000);*/
 
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/dots.png", CV_LOAD_IMAGE_COLOR);
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/test7.jpg", CV_LOAD_IMAGE_COLOR);
 
 
     vocus.process(img);

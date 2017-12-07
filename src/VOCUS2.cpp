@@ -487,7 +487,8 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
     gaborKernel135 /= k_sum;
     Mat tmp1, tmp2;
 
-
+    string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
+    Mat tmp;
     // compute DoG by subtracting layers of two pyramids
     for(int o = 0; o < (int)pyr_center_L.size(); o++){
 #pragma omp parallel for
@@ -495,78 +496,68 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
             Mat diff;
             int pos = o*cfg.n_scales+s;
 
-            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel0);
-            //tmp1 = abs(tmp1);
-            //cv::normalize(tmp1, tmp1, 0, 255, NORM_MINMAX, CV_8UC1);
-            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel0);
-            //tmp2 = abs(tmp2);
-            //cv::normalize(tmp2, tmp2, 0, 255, NORM_MINMAX, CV_8UC1);
+
             // ========== 0 channel ==========
+            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel0, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel0, Point(-1,-1), 0, BORDER_REPLICATE);
+
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor0[pos], 0, 1, THRESH_TOZERO);
-            diff *= -1.f;
+            //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
+            //imwrite(dir + "/feature_gabor0_on.png", diff);
+
+            diff = tmp2 - tmp1;
             threshold(diff, off_on_gabor0[pos], 0, 1, THRESH_TOZERO);
+            //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
+            //imwrite(dir + "/feature_gabor0_off.png", diff);
 
 
-            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel45);
-            //tmp1 = abs(tmp1);
-            //cv::normalize(tmp1, tmp1, 0, 255, NORM_MINMAX, CV_8UC1);
-            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel45);
-            //tmp2 = abs(tmp2);
-            //cv::normalize(tmp2, tmp2, 0, 255, NORM_MINMAX, CV_8UC1);
-            // ========== 0 channel ==========
+            // ========== 45 channel ==========
+            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel45, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel45, Point(-1,-1), 0, BORDER_REPLICATE);
+
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor45[pos], 0, 1, THRESH_TOZERO);
-            diff *= -1.f;
+            //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
+            //imwrite(dir + "/feature_gabor45_on.png", diff);
+
+            diff = tmp2 - tmp1;
             threshold(diff, off_on_gabor45[pos], 0, 1, THRESH_TOZERO);
+            //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
+            //imwrite(dir + "/feature_gabor45_off.png", diff);
 
 
-            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel90);
-            //tmp1 = abs(tmp1);
-            //cv::normalize(tmp1, tmp1, 0, 255, NORM_MINMAX, CV_8UC1);
-            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel90);
-            //tmp2 = abs(tmp2);
-            //cv::normalize(tmp2, tmp2, 0, 255, NORM_MINMAX, CV_8UC1);
-            // ========== 0 channel ==========
+            // ========== 90 channel ==========
+            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel90, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel90, Point(-1,-1), 0, BORDER_REPLICATE);
+
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor90[pos], 0, 1, THRESH_TOZERO);
-            diff *= -1.f;
+            //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
+            //imwrite(dir + "/feature_gabor90_on.png", diff);
+
+            diff = tmp2 - tmp1;
             threshold(diff, off_on_gabor90[pos], 0, 1, THRESH_TOZERO);
+            //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
+            //imwrite(dir + "/feature_gabor90_off.png", diff);
 
 
-            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel135);
-            //tmp1 = abs(tmp1);
-            //cv::normalize(tmp1, tmp1, 0, 255, NORM_MINMAX, CV_8UC1);
-            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel135);
-            //tmp2 = abs(tmp2);
-            //cv::normalize(tmp2, tmp2, 0, 255, NORM_MINMAX, CV_8UC1);
-            // ========== 0 channel ==========
+
+            // ========== 135 channel ==========
+            filter2D(pyr_center_L[o][s], tmp1, -1, gaborKernel135, Point(-1,-1), 0, BORDER_REPLICATE);
+            filter2D(pyr_surround_L[o][s], tmp2, -1, gaborKernel135, Point(-1,-1), 0, BORDER_REPLICATE);
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor135[pos], 0, 1, THRESH_TOZERO);
-            diff *= -1.f;
+            //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
+            //imwrite(dir + "/feature_gabor135_on.png", diff);
+            diff = tmp2 - tmp1;
             threshold(diff, off_on_gabor135[pos], 0, 1, THRESH_TOZERO);
+            //cv::normalize(diff, diff, 0, 255, NORM_MINMAX);
+            //imwrite(dir + "/feature_gabor135_off.png", diff);
 
 
         }
 
-        string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
-        Mat tmp;
-        cv::normalize(on_off_gabor0[0], tmp, 0, 255, NORM_MINMAX);
-        imwrite(dir + "/feature_gabor0_on.png", tmp);
-
-        cv::normalize(on_off_gabor90[0], tmp, 0, 255, NORM_MINMAX);
-        imwrite(dir + "/feature_gabor90_on.png", tmp);
-
-        cv::normalize(on_off_gabor45[0], tmp, 0, 255, NORM_MINMAX);
-        imwrite(dir + "/feature_gabor45_on.png", tmp);
-
-        cv::normalize(on_off_gabor135[0], tmp, 0, 255, NORM_MINMAX);
-        imwrite(dir + "/feature_gabor135_on.png", tmp);
-
-        //imwrite(dir + "/feature_gabor0_off.png", off_on_gabor0[0]);
-        //imwrite(dir + "/feature_gabor90_off.png", off_on_gabor90[0]);
-        //imwrite(dir + "/feature_gabor45_off.png", off_on_gabor45[0]);
-        //imwrite(dir + "/feature_gabor135_off.png", off_on_gabor135[0]);
     }
 }
 

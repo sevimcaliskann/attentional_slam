@@ -84,7 +84,7 @@ public:
 	// default constructor, default parameters
 	VOCUS2_Cfg(){
         c_space = OPPONENT_CODI;
-        fuse_feature = ARITHMETIC_MEAN;
+        fuse_feature = UNIQUENESS_WEIGHT;
         fuse_conspicuity = ARITHMETIC_MEAN;
 		start_layer = 0;
         stop_layer = 8;
@@ -92,7 +92,7 @@ public:
         surround_sigma = 15;
         n_scales = 4;
         normalize = true;
-        pyr_struct = CLASSIC;
+        pyr_struct = CODI;
         orientation = true;
         combined_features = true;
 	};
@@ -180,7 +180,7 @@ public:
 	// write all intermediate results to the given directory
 	void write_out(string dir);
 
-    std::vector<cv::Mat> getFeatureChannel(const Mat& image, FeatureChannels name);
+    std::vector<cv::Mat> getFeatureChannel(FeatureChannels name);
 
 private:
 	VOCUS2_Cfg cfg;

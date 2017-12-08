@@ -273,6 +273,28 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg, VOCUS2 &vocus){
     //}
 }
 
+string type2str(int type) {
+  string r;
+
+  uchar depth = type & CV_MAT_DEPTH_MASK;
+  uchar chans = 1 + (type >> CV_CN_SHIFT);
+
+  switch ( depth ) {
+    case CV_8U:  r = "8U"; break;
+    case CV_8S:  r = "8S"; break;
+    case CV_16U: r = "16U"; break;
+    case CV_16S: r = "16S"; break;
+    case CV_32S: r = "32S"; break;
+    case CV_32F: r = "32F"; break;
+    case CV_64F: r = "64F"; break;
+    default:     r = "User"; break;
+  }
+
+  r += "C";
+  r += (chans+'0');
+
+  return r;
+}
 
 
 
@@ -303,18 +325,22 @@ int main(int argc, char* argv[]) {
     pose = nh.advertise<geometry_msgs::PointStamped>("saliency_points", 1000);*/
 
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/test11.jpg", CV_LOAD_IMAGE_COLOR);
-
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/test2.png", CV_LOAD_IMAGE_COLOR);
 
     vocus.process(img);
-    Mat tmp = vocus.get_salmap();
-    cv::normalize(tmp, tmp, 0, 255, NORM_MINMAX);
-    string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
-    imwrite(dir + "/salmap.png", tmp);
-    //vocus.write_out(dir);
+    Mat salmap = vocus.get_salmap();
+
+    //Mat tmp;
+    //GaussianBlur(tmp, tmp, Size(5,5), 3, 3, BORDER_REPLICATE);
+    //cv::normalize(salmap, tmp, 0, 255, NORM_MINMAX);
+
     cv::namedWindow("view", WINDOW_AUTOSIZE);
-    cv::imshow("view", tmp);
+    cv::imshow("view", salmap);
     cv::waitKey(3000);
+
+    //string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
+    //imwrite(dir + "/salmap2.png", tmp);
+
 
     ros::spinOnce();
 	return EXIT_SUCCESS;

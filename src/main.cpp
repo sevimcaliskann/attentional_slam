@@ -325,14 +325,12 @@ int main(int argc, char* argv[]) {
     pose = nh.advertise<geometry_msgs::PointStamped>("saliency_points", 1000);*/
 
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/test2.png", CV_LOAD_IMAGE_COLOR);
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/CarScene.png", CV_LOAD_IMAGE_COLOR);
 
     vocus.process(img);
     Mat salmap = vocus.get_salmap();
 
-    //Mat tmp;
-    //GaussianBlur(tmp, tmp, Size(5,5), 3, 3, BORDER_REPLICATE);
-    //cv::normalize(salmap, tmp, 0, 255, NORM_MINMAX);
+    //GaussianBlur(salmap, salmap, Size(5,5), 3, 3, BORDER_REPLICATE);
 
     cv::namedWindow("view", WINDOW_AUTOSIZE);
     cv::imshow("view", salmap);

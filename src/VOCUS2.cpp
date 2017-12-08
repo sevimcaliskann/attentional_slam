@@ -435,7 +435,7 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
             filter2D(pyr_center_L[o], tmp1, -1, gaborKernel0, Point(-1,-1), 0, BORDER_REPLICATE);
             filter2D(pyr_surround_L[o+s+2], tmp2, -1, gaborKernel0, Point(-1,-1), 0, BORDER_REPLICATE);
 
-            diff = abs(tmp1-tmp2);
+            diff = tmp1-tmp2;
             threshold(diff, on_off_gabor0[pos], 0, 1, THRESH_TOZERO);
 
             diff = tmp2 - tmp1;
@@ -446,7 +446,7 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
             filter2D(pyr_center_L[o], tmp1, -1, gaborKernel45, Point(-1,-1), 0, BORDER_REPLICATE);
             filter2D(pyr_surround_L[o+s+2], tmp2, -1, gaborKernel45, Point(-1,-1), 0, BORDER_REPLICATE);
 
-            diff = abs(tmp1-tmp2);
+            diff = tmp1-tmp2;
             threshold(diff, on_off_gabor45[pos], 0, 1, THRESH_TOZERO);
 
             diff = tmp2 - tmp1;
@@ -457,7 +457,7 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
             filter2D(pyr_center_L[o], tmp1, -1, gaborKernel90, Point(-1,-1), 0, BORDER_REPLICATE);
             filter2D(pyr_surround_L[o+s+2], tmp2, -1, gaborKernel90, Point(-1,-1), 0, BORDER_REPLICATE);
 
-            diff = abs(tmp1-tmp2);
+            diff = tmp1-tmp2;
             threshold(diff, on_off_gabor90[pos], 0, 1, THRESH_TOZERO);
 
             diff = tmp2 - tmp1;
@@ -468,7 +468,7 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
             // ========== 135 channel ==========
             filter2D(pyr_center_L[o], tmp1, -1, gaborKernel135, Point(-1,-1), 0, BORDER_REPLICATE);
             filter2D(pyr_surround_L[o+s+2], tmp2, -1, gaborKernel135, Point(-1,-1), 0, BORDER_REPLICATE);
-            diff = abs(tmp1-tmp2);
+            diff = tmp1-tmp2;
             threshold(diff, on_off_gabor135[pos], 0, 1, THRESH_TOZERO);
 
             diff = tmp2 - tmp1;

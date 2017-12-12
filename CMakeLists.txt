@@ -56,7 +56,8 @@ add_library( vocus2l src/VOCUS2.cpp)
 
 link_directories(/home/sevim/catkin_ws/devel/lib/vocus2)
 add_executable(vocus2 src/main.cpp src/VOCUS2.cpp)
-add_dependencies(vocus2 ${PROJECT_NAME}_gencfg)
+#add_dependencies(vocus2 ${PROJECT_NAME}_gencfg)
+add_dependencies(vocus2 ${PROJECT_NAME})
 target_link_libraries(vocus2 ${OpenCV_LIBS} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 target_link_libraries(vocus2l ${OpenCV_LIBS} ${Boost_LIBRARIES})
 

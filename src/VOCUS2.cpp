@@ -1,7 +1,7 @@
 /*****************************************************************************
 *
-* VOCUS2.cpp file for the saliency program VOCUS2. 
-* A detailed description of the algorithm can be found in the paper: "Traditional Saliency Reloaded: A Good Old Model in New Shape", S. Frintrop, T. Werner, G. Martin Garcia, in Proceedings of the IEEE International Conference on Computer Vision and Pattern Recognition (CVPR), 2015.  
+* VOCUS2.cpp file for the saliency program VOCUS2.
+* A detailed description of the algorithm can be found in the paper: "Traditional Saliency Reloaded: A Good Old Model in New Shape", S. Frintrop, T. Werner, G. Martin Garcia, in Proceedings of the IEEE International Conference on Computer Vision and Pattern Recognition (CVPR), 2015.
 * Please cite this paper if you use our method.
 *
 * Implementation:	  Thomas Werner   (wernert@cs.uni-bonn.de)
@@ -9,7 +9,7 @@
 *
 * Version 1.1
 *
-* This code is published under the MIT License 
+* This code is published under the MIT License
 * (see file LICENSE.txt for details)
 *
 ******************************************************************************/
@@ -56,9 +56,9 @@ void VOCUS2::write_out(string dir){
 	if(!salmap_ready) return;
 
 	double mi, ma;
-	
-	std::cout << "Writing intermediate results to directory: " << dir <<"/"<< endl; 
-	
+
+	std::cout << "Writing intermediate results to directory: " << dir <<"/"<< endl;
+
 	for(int i = 0; i < (int)pyr_center_L.size(); i++){
         minMaxLoc(pyr_center_L[i], &mi, &ma);
         imwrite(dir + "/pyr_center_L_" + to_string(i) + ".png", (pyr_center_L[i]-mi)/(ma-mi)*255.f);
@@ -82,23 +82,23 @@ void VOCUS2::write_out(string dir){
 	for(int i = 0; i < (int)on_off_L.size(); i++){
 		minMaxLoc(on_off_L[i], &mi, &ma);
 		imwrite(dir + "/on_off_L_" + to_string(i) + ".png", (on_off_L[i]-mi)/(ma-mi)*255.f);
-		
+
 		minMaxLoc(on_off_a[i], &mi, &ma);
 		imwrite(dir + "/on_off_a_" + to_string(i) + ".png", (on_off_a[i]-mi)/(ma-mi)*255.f);
-		
+
 		minMaxLoc(on_off_b[i], &mi, &ma);
 		imwrite(dir + "/on_off_b_" + to_string(i) + ".png", (on_off_b[i]-mi)/(ma-mi)*255.f);
-		
+
 		minMaxLoc(off_on_L[i], &mi, &ma);
 		imwrite(dir + "/off_on_L_" + to_string(i) + ".png", (off_on_L[i]-mi)/(ma-mi)*255.f);
-		
+
 		minMaxLoc(off_on_a[i], &mi, &ma);
 		imwrite(dir + "/off_on_a_" + to_string(i) + ".png", (off_on_a[i]-mi)/(ma-mi)*255.f);
-		
+
 		minMaxLoc(off_on_b[i], &mi, &ma);
 		imwrite(dir + "/off_on_b_" + to_string(i) + ".png", (off_on_b[i]-mi)/(ma-mi)*255.f);
 
-		
+
 	}
 
 	vector<Mat> tmp(6);
@@ -106,7 +106,7 @@ void VOCUS2::write_out(string dir){
 	tmp[0] = fuse(on_off_L, cfg.fuse_feature);
 	minMaxLoc(tmp[0], &mi, &ma);
 	imwrite(dir + "/feat_on_off_L.png", (tmp[0]-mi)/(ma-mi)*255.f);
-	
+
 	tmp[1] = fuse(on_off_a, cfg.fuse_feature);
 	minMaxLoc(tmp[1], &mi, &ma);
 	imwrite(dir + "/feat_on_off_a.png", (tmp[1]-mi)/(ma-mi)*255.f);
@@ -118,7 +118,7 @@ void VOCUS2::write_out(string dir){
 	tmp[3] = fuse(off_on_L, cfg.fuse_feature);
 	minMaxLoc(tmp[3], &mi, &ma);
 	imwrite(dir + "/feat_off_on_L.png", (tmp[3]-mi)/(ma-mi)*255.f);
-	
+
 	tmp[4] = fuse(off_on_a, cfg.fuse_feature);
 	minMaxLoc(tmp[4], &mi, &ma);
 	imwrite(dir + "/feat_off_on_a.png", (tmp[4]-mi)/(ma-mi)*255.f);
@@ -126,7 +126,7 @@ void VOCUS2::write_out(string dir){
 	tmp[5] = fuse(off_on_b, cfg.fuse_feature);
 	minMaxLoc(tmp[5], &mi, &ma);
 	imwrite(dir + "/feat_off_on_b.png", (tmp[5]-mi)/(ma-mi)*255.f);
-	
+
 	for(int i = 0; i < 3; i++){
 		vector<Mat> tmp2;
 		tmp2.push_back(tmp[i]);
@@ -146,9 +146,9 @@ void VOCUS2::write_out(string dir){
 		imwrite(dir + "/conspicuity_" + ch + ".png", (tmp3-mi)/(ma-mi)*255.f);
 	}
 
-	imwrite(dir + "/salmap.png", salmap);	
+	imwrite(dir + "/salmap.png", salmap);
 }
-	
+
 void VOCUS2::process(const Mat& img){
 	// clone the input image
 	input = img.clone();
@@ -157,18 +157,18 @@ void VOCUS2::process(const Mat& img){
 	if(cfg.pyr_struct == NEW) pyramid_new(img);  // default
 	else if(cfg.pyr_struct == CODI) pyramid_codi(img);
 	else pyramid_classic(img);
- 
+
 	// set flag indicating that the pyramids are present
 	this->processed = true;
 
 	// compute center surround contrast
-	center_surround_diff();		
+	center_surround_diff();
 
     if(cfg.orientation)	orientationWithCenterSurroundDiff();
 
 }
 
-	
+
 void VOCUS2::pyramid_codi(const Mat& img){
 	// clear previous results
 	clear();
@@ -179,7 +179,7 @@ void VOCUS2::pyramid_codi(const Mat& img){
 
 	// prepare input image (convert colorspace + split planes)
 	planes = prepare_input(img);
-	
+
 	// create base pyramids
     vector<Mat> pyr_base_L, pyr_base_a, pyr_base_b, pyr_base_a2, pyr_base_b2;
 #pragma omp parallel sections
@@ -487,6 +487,10 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 Mat VOCUS2::get_salmap(){
 
 	// check if center surround contrasts are computed
+	Mat temp;
+	string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
+
+
 	if(!processed){
 		cout << "Image not yet processed. Call process(Mat)." << endl;
 		return Mat();
@@ -500,14 +504,33 @@ Mat VOCUS2::get_salmap(){
 	feature_intensity.push_back(fuse(on_off_L, cfg.fuse_feature));
     feature_intensity.push_back(fuse(off_on_L, cfg.fuse_feature));
 
+
+		cv::normalize(feature_intensity[0], temp, 0, 255, NORM_MINMAX);
+		imwrite(dir + "/on_off_L.png", temp);
+
+		cv::normalize(feature_intensity[1], temp, 0, 255, NORM_MINMAX);
+		imwrite(dir + "/off_on_L.png", temp);
+
 	// color feature maps
 	vector<Mat> feature_color1, feature_color2;
 
 	if(cfg.combined_features){
 		feature_color1.push_back(fuse(on_off_a, cfg.fuse_feature));
         feature_color1.push_back(fuse(off_on_a, cfg.fuse_feature));
-		feature_color1.push_back(fuse(on_off_b, cfg.fuse_feature)); 
+		feature_color1.push_back(fuse(on_off_b, cfg.fuse_feature));
         feature_color1.push_back(fuse(off_on_b, cfg.fuse_feature));
+
+				cv::normalize(feature_color1[0], temp, 0, 255, NORM_MINMAX);
+				imwrite(dir + "/on_off_a.png", temp);
+
+				cv::normalize(feature_color1[1], temp, 0, 255, NORM_MINMAX);
+				imwrite(dir + "/off_on_a.png", temp);
+
+				cv::normalize(feature_color1[2], temp, 0, 255, NORM_MINMAX);
+				imwrite(dir + "/on_off_b.png", temp);
+
+				cv::normalize(feature_color1[3], temp, 0, 255, NORM_MINMAX);
+				imwrite(dir + "/off_on_b.png", temp);
 
 	}
 	else{
@@ -531,6 +554,34 @@ Mat VOCUS2::get_salmap(){
             feature_orientation1.push_back(fuse(off_on_gabor90, cfg.fuse_feature));
             feature_orientation1.push_back(fuse(off_on_gabor135, cfg.fuse_feature));
 
+
+
+
+						cv::normalize(feature_orientation1[0], temp, 0, 255, NORM_MINMAX);
+						imwrite(dir + "/on_off_gabor0.png", temp);
+
+						cv::normalize(feature_orientation1[1], temp, 0, 255, NORM_MINMAX);
+						imwrite(dir + "/on_off_gabor45.png", temp);
+
+						cv::normalize(feature_orientation1[2], temp, 0, 255, NORM_MINMAX);
+						imwrite(dir + "/on_off_gabor90.png", temp);
+
+						cv::normalize(feature_orientation1[3], temp, 0, 255, NORM_MINMAX);
+						imwrite(dir + "/on_off_gabor135.png", temp);
+
+
+						cv::normalize(feature_orientation1[4], temp, 0, 255, NORM_MINMAX);
+						imwrite(dir + "/off_on_gabor0.png", temp);
+
+						cv::normalize(feature_orientation1[5], temp, 0, 255, NORM_MINMAX);
+						imwrite(dir + "/off_on_gabor45.png", temp);
+
+						cv::normalize(feature_orientation1[6], temp, 0, 255, NORM_MINMAX);
+						imwrite(dir + "/off_on_gabor90.png", temp);
+
+						cv::normalize(feature_orientation1[7], temp, 0, 255, NORM_MINMAX);
+						imwrite(dir + "/off_on_gabor135.png", temp);
+
         //}
     }
     else if(cfg.orientation && !cfg.combined_features){
@@ -549,10 +600,28 @@ Mat VOCUS2::get_salmap(){
     vector<Mat> conspicuity_maps;
     //conspicuity_maps.push_back(fuse(feature_intensity, cfg.fuse_conspicuity));
 
+
+
     if(cfg.combined_features){
-        conspicuity_maps.push_back(fuse(feature_color1, cfg.fuse_feature));
-        if(cfg.orientation) conspicuity_maps.push_back(fuse(feature_orientation1, cfg.fuse_feature));
-		
+				Mat conspicuity1 = fuse(feature_color1, cfg.fuse_feature);
+        conspicuity_maps.push_back(conspicuity1);
+        if(cfg.orientation) {
+					Mat conspicuity2 = fuse(feature_orientation1, cfg.fuse_feature);
+					conspicuity_maps.push_back(conspicuity2);
+
+					cv::normalize(conspicuity2, temp, 0, 255, NORM_MINMAX);
+			    imwrite(dir + "/conspicuity_orientation.png", temp);
+				}
+				Mat conspicuity3 = fuse(feature_intensity, cfg.fuse_feature);
+				conspicuity_maps.push_back(conspicuity3);
+
+
+				cv::normalize(conspicuity1, temp, 0, 255, NORM_MINMAX);
+		    imwrite(dir + "/conspicuity_color.png", temp);
+
+				cv::normalize(conspicuity3, temp, 0, 255, NORM_MINMAX);
+		    imwrite(dir + "/conspicuity_luminance.png", temp);
+
 	}
 	else{
         conspicuity_maps.push_back(fuse(feature_color1, cfg.fuse_conspicuity));
@@ -581,10 +650,6 @@ Mat VOCUS2::get_salmap(){
         //salmap = (salmap-mi)/(ma-mi);
         cv::normalize(salmap, salmap, 0, 255, NORM_MINMAX, CV_8UC1);
 	}
-
-    string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
-
-    imwrite(dir + "/salmap.png", salmap);
 
 	salmap_ready = true;
 
@@ -617,7 +682,7 @@ Mat VOCUS2::add_center_bias(float lambda){
 	}
 
 	return salmap;
-} 
+}
 
 vector<Mat> VOCUS2::get_splitted_salmap(){
 	if(!processed){
@@ -648,7 +713,7 @@ vector<Mat> VOCUS2::get_splitted_salmap(){
 
 		salmap_splitted[o] = tmp;
 	}
-	
+
 	splitted_ready = true;
 
 	return salmap_splitted;
@@ -685,7 +750,7 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 	// for each image pixel
 	for(int r = 0; r < img.rows; r++){
 		for(int c = 0; c < img.cols; c++){
-			
+
 			// skip marked pixel
 			if(mask.ptr<uchar>(r)[c] != 0) continue;
 
@@ -718,7 +783,7 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 
 				// current point is done
 				mask.ptr<uchar>(r)[c] = 1;
-				
+
 				// all smaller neighbours are definitive no maxima
 				for(Point& p : lower) mask.ptr<uchar>(p.y)[p.x] = 1;
 
@@ -733,7 +798,7 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 			// case 2: blob
 			else{
 				Mat considered = Mat::zeros(img.size(), CV_8U);
-				
+
 				// mark all pixel as considered
 				for(Point& p : lower) considered.ptr<uchar>(p.y)[p.x] = 1;
 				for(Point& p : equal) considered.ptr<uchar>(p.y)[p.x] = 1;
@@ -793,7 +858,7 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 
 //Fuse maps using operation
 Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op){
-	
+
 	// resulting map that is returned
 	Mat fused = Mat::zeros(maps[0].size(), CV_32F);
 	int n_maps = maps.size();	// no. of maps to fuse
@@ -954,5 +1019,3 @@ void VOCUS2::clear(){
 	pyr_center_b.clear();
 	pyr_surround_b.clear();
 }
-
-

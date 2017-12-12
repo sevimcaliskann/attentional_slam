@@ -1,7 +1,7 @@
 /*****************************************************************************
 *
-* main.cpp file for the saliency program VOCUS2. 
-* A detailed description of the algorithm can be found in the paper: "Traditional Saliency Reloaded: A Good Old Model in New Shape", S. Frintrop, T. Werner, G. Martin Garcia, in Proceedings of the IEEE International Conference on Computer Vision and Pattern Recognition (CVPR), 2015.  
+* main.cpp file for the saliency program VOCUS2.
+* A detailed description of the algorithm can be found in the paper: "Traditional Saliency Reloaded: A Good Old Model in New Shape", S. Frintrop, T. Werner, G. Martin Garcia, in Proceedings of the IEEE International Conference on Computer Vision and Pattern Recognition (CVPR), 2015.
 * Please cite this paper if you use our method.
 *
 * Implementation:	  Thomas Werner   (wernert@cs.uni-bonn.de)
@@ -9,7 +9,7 @@
 *
 * Version 1.1
 *
-* This code is published under the MIT License 
+* This code is published under the MIT License
 * (see file LICENSE.txt for details)
 *
 ******************************************************************************/
@@ -49,10 +49,10 @@ bool CENTER_BIAS = false;
 
 float SIGMA, K;
 int MIN_SIZE, METHOD;
-VOCUS2_Cfg cfg;// = VOCUS2_Cfg();
+//VOCUS2_Cfg cfg;// = VOCUS2_Cfg();
 VOCUS2 vocus;
 
-ros::Publisher pose;
+//ros::Publisher pose;
 image_transport::Publisher pub;
 
 vector<string> split_string(const string &s, char delim) {
@@ -66,7 +66,7 @@ vector<string> split_string(const string &s, char delim) {
 }
 
 
-void callback(vocus2::vocus_paramsConfig &config, uint32_t level) {
+/*void callback(vocus2::vocus_paramsConfig &config, uint32_t level) {
   cfg.center_sigma = config.center_sigma;
   cfg.c_space = (ColorSpace)config.c_space;
   cfg.fuse_conspicuity = (FusionOperation)config.fuse_conspicuity;
@@ -79,7 +79,7 @@ void callback(vocus2::vocus_paramsConfig &config, uint32_t level) {
   cfg.start_layer = config.start_layer;
   cfg.stop_layer = config.stop_layer;
   vocus.setCfg(cfg);
-}
+}*/
 
 void print_usage(){
 
@@ -114,7 +114,7 @@ void print_usage(){
 	cout << "   -c <value>" << "\t\t" << "Center sigma [default: 2]" << endl << endl;
 
 	cout << "   -s <value>" << "\t\t" << "Surround sigma [default: 10]" << endl << endl;
-	
+
 	//cout << "   -r" << "\t\t" << "Use orientation [default: off]  " << endl << endl;
 
 	cout << "   -e" << "\t\t" << "Use Combined Feature [default: off]" << endl << endl;
@@ -129,7 +129,7 @@ void print_usage(){
 	cout << "   -t <value>" << "\t\t" << "MSR threshold (percentage of fixation) [default: 0.75]" << endl << endl;
 
 	cout << "   -N" << "\t\t" << "No visualization" << endl << endl;
-	
+
 	cout << "   -o <path>" << "\t\t" << "WRITE results to specified path [default: <input_path>/saliency/*]" << endl << endl;
 
 	cout << "   -w <path>" << "\t\t" << "WRITE all intermediate maps to an existing folder" << endl << endl;
@@ -204,35 +204,30 @@ vector<Point> get_msr(Mat& salmap){
 
 
 
-void imageCallback(const sensor_msgs::ImageConstPtr& msg, VOCUS2 &vocus){
-    //cv_bridge::CvImagePtr cv_ptr;
-    //geometry_msgs::PointStamped p_;
-    //try
-    //{
+void imageCallback(const sensor_msgs::ImageConstPtr& msg){
+    ROS_INFO("Before publishin!");
+    cv_bridge::CvImagePtr cv_ptr;
+    geometry_msgs::PointStamped p_;
+    try
+    {
 
 
-        //cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::RGB8);
-        //cv::Mat img = cv_ptr->image;
+        cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+        cv::Mat img = cv_ptr->image;
 
-        /*Mat salmap, img_rgb;
-        std::vector<cv::Mat> salmap_list;
+        Mat salmap;
+        //std::vector<cv::Mat> salmap_list;
 
         vocus.process(img);
 
-        if(!CENTER_BIAS) salmap = vocus.get_salmap();
-        else salmap = vocus.add_center_bias(0.0005);
+        salmap = vocus.get_salmap();
+
         //salmap = vocus.get_salmap();
         //if(CENTER_BIAS)
           //  vocus.add_center_bias(0.5);
 
-        salmap_list = vocus.get_splitted_salmap();
 
-        Mat salmap2;
-        salmap.convertTo(salmap2,CV_8UC1, 255);
-        img_rgb = cv::Mat(salmap2.size(), CV_8UC3);
-        cv::cvtColor(salmap2, img_rgb, CV_GRAY2RGB);
-
-        for(int i = 0; i<salmap_list.size(); i++){
+        /*for(int i = 0; i<salmap_list.size(); i++){
             salmap = salmap_list[i];
             vector<Point> msr = get_msr(salmap);
 
@@ -249,28 +244,18 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg, VOCUS2 &vocus){
 
             //cv::cvtColor(salmap, salmap, cv::COLOR_GRAY2BGR);
             circle(img_rgb, center, 10, Scalar(255,0,0),CV_FILLED, 8,0);
-        }
-
-            //salmap.convertTo(salmap,CV_8UC1, 255);
-            //img_rgb = cv::Mat(salmap.size(), CV_8UC3);
-            //cv::cvtColor(salmap, img_rgb, CV_GRAY2RGB);
-
-            //salmap.convertTo(salmap,CV_8UC1, 255);
-            //img_rgb = cv::Mat(salmap.size(), CV_8UC3);
-            //cv::cvtColor(salmap, img_rgb, CV_GRAY2RGB);
-
-            //circle(img_rgb, Point(center.x, center.y),10, Scalar(255,0,0),CV_FILLED, 8,0);
-        //}
+        }*/
 
 
-        sensor_msgs::ImagePtr img_msg = cv_bridge::CvImage(std_msgs::Header(), "rgb8", img_rgb).toImageMsg();
-        pub.publish(img_msg);*/
 
-    //}
-    //catch (cv_bridge::Exception& e)
-    //{
-      //ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
-    //}
+        sensor_msgs::ImagePtr img_msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", salmap).toImageMsg();
+        pub.publish(img_msg);
+
+    }
+    catch (cv_bridge::Exception& e)
+    {
+      ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
+    }
 }
 
 string type2str(int type) {
@@ -304,28 +289,28 @@ int main(int argc, char* argv[]) {
 
     ros::NodeHandle nh;
 
-    /*dynamic_reconfigure::Server<vocus2::vocus_paramsConfig> server;
-    dynamic_reconfigure::Server<vocus2::vocus_paramsConfig>::CallbackType f;
+    //dynamic_reconfigure::Server<vocus2::vocus_paramsConfig> server;
+    //dynamic_reconfigure::Server<vocus2::vocus_paramsConfig>::CallbackType f;
 
-    f = boost::bind(&callback, _1, _2);
-    server.setCallback(f);
+    //f = boost::bind(&callback, _1, _2);
+    //server.setCallback(f);
 
-    bool correct = process_arguments(cfg);
+    /*bool correct = process_arguments(cfg);
 
     if(!correct){
         print_usage();
         return EXIT_FAILURE;
-    }
-    //ROS_INFO("STARTED!");
-
-    image_transport::ImageTransport it(nh);
-    //image_transport::Subscriber sub = it.subscribe("image", 1, &imageCallback);
-    image_transport::Subscriber sub = it.subscribe("image", 1, boost::bind(imageCallback, _1, boost::ref(vocus)));
-    pub = it.advertise("/marked_salient_image", 1);
-    pose = nh.advertise<geometry_msgs::PointStamped>("saliency_points", 1000);*/
+    }*/
 
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/CarScene.png", CV_LOAD_IMAGE_COLOR);
+    //image_transport::ImageTransport it(nh);
+    //image_transport::Subscriber sub = it.subscribe("image", 1, imageCallback);
+    //image_transport::Subscriber sub = it.subscribe("image", 1, boost::bind(imageCallback, _1, boost::ref(vocus)));
+    //pub = it.advertise("/marked_salient_image", 1);
+    //pose = nh.advertise<geometry_msgs::PointStamped>("saliency_points", 1000);
+
+
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/pop-out.png", CV_LOAD_IMAGE_COLOR);
 
     vocus.process(img);
     Mat salmap = vocus.get_salmap();
@@ -336,12 +321,10 @@ int main(int argc, char* argv[]) {
     cv::imshow("view", salmap);
     cv::waitKey(3000);
 
-    //string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
-    //imwrite(dir + "/salmap2.png", tmp);
+    string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
+    imwrite(dir + "/salmap.png", salmap);
 
 
     ros::spinOnce();
 	return EXIT_SUCCESS;
 }
-
-

@@ -1,7 +1,7 @@
 /*****************************************************************************
 *
-* VOCUS2.h file for the saliency program VOCUS2. 
-* A detailed description of the algorithm can be found in the paper: "Traditional Saliency Reloaded: A Good Old Model in New Shape", S. Frintrop, T. Werner, G. Martin Garcia, in Proceedings of the IEEE International Conference on Computer Vision and Pattern Recognition (CVPR), 2015.  
+* VOCUS2.h file for the saliency program VOCUS2.
+* A detailed description of the algorithm can be found in the paper: "Traditional Saliency Reloaded: A Good Old Model in New Shape", S. Frintrop, T. Werner, G. Martin Garcia, in Proceedings of the IEEE International Conference on Computer Vision and Pattern Recognition (CVPR), 2015.
 * Please cite this paper if you use our method.
 *
 * Implementation:	  Thomas Werner   (wernert@cs.uni-bonn.de)
@@ -9,7 +9,7 @@
 *
 * Version 1.1
 *
-* This code is published under the MIT License 
+* This code is published under the MIT License
 * (see file LICENSE.txt for details)
 *
 ******************************************************************************/
@@ -61,7 +61,7 @@ enum FeatureChannels{
 enum FusionOperation{
 	ARITHMETIC_MEAN = 0,
 	MAX = 1,
-	// uniqueness weight as in 
+	// uniqueness weight as in
 	// Simone Frintrop: VOCUS: A Visual Attention System for Object Detection and Goal-directed Search, PhD thesis 2005
 	UNIQUENESS_WEIGHT = 2,
 };
@@ -92,7 +92,7 @@ public:
         surround_sigma = 15;
         n_scales = 4;
         normalize = true;
-        pyr_struct = CODI;
+        pyr_struct = CLASSIC;
         orientation = true;
         combined_features = true;
 	};
@@ -113,7 +113,7 @@ public:
 	float center_sigma, surround_sigma;
 
 	bool normalize, orientation, combined_features;
-	
+
 	// load xml file
 	bool load(string f_name){
         std::ifstream conf_file(f_name.c_str());
@@ -238,12 +238,10 @@ private:
 	// computes the uniqueness of a map by counting the local maxima
 	float compute_uniqueness_weight(Mat& map, float t);
 
-	
+
 	// void mark_equal_neighbours(int r, int c, float value, Mat& map, Mat& marked);
 
 };
 
 
 #endif /* VOCUS2_H_ */
-
-

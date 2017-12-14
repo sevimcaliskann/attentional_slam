@@ -218,8 +218,10 @@ void VOCUS2::pyramid_codi(const Mat& img){
 		// for all scales build the center and surround pyramids independently
 #pragma omp parallel for
 
-            float scaled_center_sigma = adapted_center_sigma*pow(2.0, (double)o/(double)pyr_base_L.size());
+            /*float scaled_center_sigma = adapted_center_sigma*pow(2.0, (double)o/(double)pyr_base_L.size());
             float scaled_surround_sigma = adapted_surround_sigma*pow(2.0, (double)o/(double)pyr_base_L.size());
+						//float scaled_center_sigma = adapted_center_sigma;
+            //float scaled_surround_sigma = adapted_surround_sigma;
 
             GaussianBlur(pyr_base_L[o], pyr_center_L[o], Size(5,5), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
             //cv::normalize(pyr_center_L[o][s], pyr_center_L[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
@@ -234,7 +236,11 @@ void VOCUS2::pyramid_codi(const Mat& img){
             GaussianBlur(pyr_base_b[o], pyr_center_b[o], Size(5,5), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
             //cv::normalize(pyr_center_b[o][s], pyr_center_b[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
             GaussianBlur(pyr_base_b2[o], pyr_surround_b[o], Size(5,5), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
-            //cv::normalize(pyr_surround_b[o][s], pyr_surround_b[o][s], 0, 255, NORM_MINMAX, CV_8UC1);
+            //cv::normalize(pyr_surround_b[o][s], pyr_surround_b[o][s], 0, 255, NORM_MINMAX, CV_8UC1);*/
+
+						pyr_center_L[o] = pyr_base_L[o]; pyr_surround_L[o] = pyr_base_L[o];
+						pyr_center_a[o] = pyr_base_a[o]; pyr_surround_a[o] = pyr_base_a[o];
+						pyr_center_b[o] = pyr_base_b[o]; pyr_surround_b[o] = pyr_base_b[o];
 	}
 }
 
@@ -354,20 +360,26 @@ void VOCUS2::center_surround_diff(){
             // ========== L channel ==========
             diff = pyr_center_L[o]-pyr_surround_L[o+s+2];
             threshold(diff, on_off_L[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(on_off_L[pos], on_off_L[pos], 0, 1, NORM_MINMAX);
             diff = pyr_surround_L[o+s+2] - pyr_center_L[o];
             threshold(diff, off_on_L[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(off_on_L[pos], off_on_L[pos], 0, 1, NORM_MINMAX);
 
             // ========== a channel ==========
             diff = pyr_center_a[o]-pyr_surround_a[o+s+2];
             threshold(diff, on_off_a[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(on_off_a[pos], on_off_a[pos], 0, 1, NORM_MINMAX);
             diff = pyr_surround_a[o+s+2] - pyr_center_a[o];
             threshold(diff, off_on_a[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(off_on_a[pos], off_on_a[pos], 0, 1, NORM_MINMAX);
 
             // ========== b channel ==========
             diff = pyr_center_b[o]-pyr_surround_b[o+s+2];
             threshold(diff, off_on_b[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(on_off_b[pos], on_off_b[pos], 0, 1, NORM_MINMAX);
             diff = pyr_surround_b[o+s+2] - pyr_center_b[o];
             threshold(diff, on_off_b[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(off_on_b[pos], off_on_b[pos], 0, 1, NORM_MINMAX);
 
             pos++;
 
@@ -437,9 +449,11 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor0[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(on_off_gabor0[pos], on_off_gabor0[pos], 0, 1, NORM_MINMAX);
 
             diff = tmp2 - tmp1;
             threshold(diff, off_on_gabor0[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(off_on_gabor0[pos], off_on_gabor0[pos], 0, 1, NORM_MINMAX);
 
 
             // ========== 45 channel ==========
@@ -448,9 +462,11 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor45[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(on_off_gabor45[pos], on_off_gabor45[pos], 0, 1, NORM_MINMAX);
 
             diff = tmp2 - tmp1;
             threshold(diff, off_on_gabor45[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(off_on_gabor45[pos], off_on_gabor45[pos], 0, 1, NORM_MINMAX);
 
 
             // ========== 90 channel ==========
@@ -459,9 +475,11 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor90[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(on_off_gabor90[pos], on_off_gabor90[pos], 0, 1, NORM_MINMAX);
 
             diff = tmp2 - tmp1;
             threshold(diff, off_on_gabor90[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(off_on_gabor90[pos], off_on_gabor90[pos], 0, 1, NORM_MINMAX);
 
 
 
@@ -470,9 +488,11 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
             filter2D(pyr_surround_L[o+s+2], tmp2, -1, gaborKernel135, Point(-1,-1), 0, BORDER_REPLICATE);
             diff = tmp1-tmp2;
             threshold(diff, on_off_gabor135[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(on_off_gabor135[pos], on_off_gabor135[pos], 0, 1, NORM_MINMAX);
 
             diff = tmp2 - tmp1;
             threshold(diff, off_on_gabor135[pos], 0, 1, THRESH_TOZERO);
+						cv::normalize(off_on_gabor135[pos], off_on_gabor135[pos], 0, 1, NORM_MINMAX);
 
             pos++;
 
@@ -502,35 +522,35 @@ Mat VOCUS2::get_salmap(){
 	// intensity feature maps
 	vector<Mat> feature_intensity;
 	feature_intensity.push_back(fuse(on_off_L, cfg.fuse_feature));
-    feature_intensity.push_back(fuse(off_on_L, cfg.fuse_feature));
+  feature_intensity.push_back(fuse(off_on_L, cfg.fuse_feature));
 
 
-		cv::normalize(feature_intensity[0], temp, 0, 255, NORM_MINMAX);
-		imwrite(dir + "/on_off_L.png", temp);
+	cv::normalize(feature_intensity[0], temp, 0, 255, NORM_MINMAX);
+	imwrite(dir + "/on_off_L.png", temp);
 
-		cv::normalize(feature_intensity[1], temp, 0, 255, NORM_MINMAX);
-		imwrite(dir + "/off_on_L.png", temp);
+	cv::normalize(feature_intensity[1], temp, 0, 255, NORM_MINMAX);
+	imwrite(dir + "/off_on_L.png", temp);
 
 	// color feature maps
 	vector<Mat> feature_color1, feature_color2;
 
 	if(cfg.combined_features){
 		feature_color1.push_back(fuse(on_off_a, cfg.fuse_feature));
-        feature_color1.push_back(fuse(off_on_a, cfg.fuse_feature));
+    feature_color1.push_back(fuse(off_on_a, cfg.fuse_feature));
 		feature_color1.push_back(fuse(on_off_b, cfg.fuse_feature));
-        feature_color1.push_back(fuse(off_on_b, cfg.fuse_feature));
+    feature_color1.push_back(fuse(off_on_b, cfg.fuse_feature));
 
-				cv::normalize(feature_color1[0], temp, 0, 255, NORM_MINMAX);
-				imwrite(dir + "/on_off_a.png", temp);
+		cv::normalize(feature_color1[0], temp, 0, 255, NORM_MINMAX);
+		imwrite(dir + "/on_off_a.png", temp);
 
-				cv::normalize(feature_color1[1], temp, 0, 255, NORM_MINMAX);
-				imwrite(dir + "/off_on_a.png", temp);
+		cv::normalize(feature_color1[1], temp, 0, 255, NORM_MINMAX);
+		imwrite(dir + "/off_on_a.png", temp);
 
-				cv::normalize(feature_color1[2], temp, 0, 255, NORM_MINMAX);
-				imwrite(dir + "/on_off_b.png", temp);
+		cv::normalize(feature_color1[2], temp, 0, 255, NORM_MINMAX);
+		imwrite(dir + "/on_off_b.png", temp);
 
-				cv::normalize(feature_color1[3], temp, 0, 255, NORM_MINMAX);
-				imwrite(dir + "/off_on_b.png", temp);
+		cv::normalize(feature_color1[3], temp, 0, 255, NORM_MINMAX);
+		imwrite(dir + "/off_on_b.png", temp);
 
 	}
 	else{

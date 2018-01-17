@@ -15,6 +15,9 @@
 ******************************************************************************/
 
 
+
+
+
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -28,6 +31,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <dynamic_reconfigure/server.h>
 #include <vocus2/vocus_paramsConfig.h>
+#include <boost/shared_ptr.hpp>
 
 #include "VOCUS2.h"
 
@@ -49,11 +53,13 @@ bool CENTER_BIAS = false;
 
 float SIGMA, K;
 int MIN_SIZE, METHOD;
-//VOCUS2_Cfg cfg;// = VOCUS2_Cfg();
+VOCUS2_Cfg cfg;// = VOCUS2_Cfg();
 VOCUS2 vocus;
 
 //ros::Publisher pose;
-image_transport::Publisher pub;
+boost::shared_ptr<ros::Publisher> pub;
+
+
 
 vector<string> split_string(const string &s, char delim) {
     vector<string> elems;
@@ -66,7 +72,7 @@ vector<string> split_string(const string &s, char delim) {
 }
 
 
-/*void callback(vocus2::vocus_paramsConfig &config, uint32_t level) {
+void callback(vocus2::vocus_paramsConfig &config, uint32_t level) {
   cfg.center_sigma = config.center_sigma;
   cfg.c_space = (ColorSpace)config.c_space;
   cfg.fuse_conspicuity = (FusionOperation)config.fuse_conspicuity;
@@ -78,8 +84,11 @@ vector<string> split_string(const string &s, char delim) {
   cfg.pyr_struct = (PyrStructure)config.pyr_struct;
   cfg.start_layer = config.start_layer;
   cfg.stop_layer = config.stop_layer;
+  cfg.orientation = config.orientation;
+  cfg.combined_features = config.combined_features;
+
   vocus.setCfg(cfg);
-}*/
+}
 
 void print_usage(){
 
@@ -204,10 +213,10 @@ vector<Point> get_msr(Mat& salmap){
 
 
 
-void imageCallback(const sensor_msgs::ImageConstPtr& msg){
-    ROS_INFO("Before publishin!");
+void imageCallback(const sensor_msgs::ImageConstPtr& msg, const VOCUS2 &vocus){
+  //while(ros::ok()){
     cv_bridge::CvImagePtr cv_ptr;
-    geometry_msgs::PointStamped p_;
+    //geometry_msgs::PointStamped p_;
     try
     {
 
@@ -215,12 +224,12 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg){
         cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
         cv::Mat img = cv_ptr->image;
 
-        Mat salmap;
+        //Mat salmap;
         //std::vector<cv::Mat> salmap_list;
 
-        vocus.process(img);
+        //vocus.process(img);
 
-        salmap = vocus.get_salmap();
+        //salmap = vocus.get_salmap();
 
         //salmap = vocus.get_salmap();
         //if(CENTER_BIAS)
@@ -248,14 +257,15 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg){
 
 
 
-        sensor_msgs::ImagePtr img_msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", salmap).toImageMsg();
-        pub.publish(img_msg);
+        sensor_msgs::ImagePtr img_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();
+        pub->publish(img_msg);
 
     }
     catch (cv_bridge::Exception& e)
     {
       ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
     }
+  //}
 }
 
 string type2str(int type) {
@@ -285,33 +295,27 @@ string type2str(int type) {
 
 int main(int argc, char* argv[]) {
 
-    ros::init(argc, argv, "my_tf_broadcaster");
-
+    /*ros::init(argc, argv, "my_tf_broadcaster");
     ros::NodeHandle nh;
 
-    //dynamic_reconfigure::Server<vocus2::vocus_paramsConfig> server;
-    //dynamic_reconfigure::Server<vocus2::vocus_paramsConfig>::CallbackType f;
 
-    //f = boost::bind(&callback, _1, _2);
-    //server.setCallback(f);
-
-    /*bool correct = process_arguments(cfg);
-
-    if(!correct){
-        print_usage();
-        return EXIT_FAILURE;
-    }*/
-
-
-    //image_transport::ImageTransport it(nh);
+    image_transport::ImageTransport it(nh);
     //image_transport::Subscriber sub = it.subscribe("image", 1, imageCallback);
-    //image_transport::Subscriber sub = it.subscribe("image", 1, boost::bind(imageCallback, _1, boost::ref(vocus)));
-    //pub = it.advertise("/marked_salient_image", 1);
+    image_transport::Subscriber sub = it.subscribe("image", 10, boost::bind(&imageCallback, _1, boost::ref(vocus)));
+    pub.reset(new ros::Publisher(nh.advertise<sensor_msgs::Image>("/marked_salient_image", 1)));
     //pose = nh.advertise<geometry_msgs::PointStamped>("saliency_points", 1000);
 
+    dynamic_reconfigure::Server<vocus2::vocus_paramsConfig> server;
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/test7.jpg", CV_LOAD_IMAGE_COLOR);
+    dynamic_reconfigure::Server<vocus2::vocus_paramsConfig>::CallbackType f;
+    f = boost::bind(&callback, _1, _2);
+    server.setCallback(f);*/
 
+
+
+
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/CarScene.png", CV_LOAD_IMAGE_COLOR);
+    std::cout << "The image size : " << img.rows << ", " << img.cols << std::endl;
     vocus.process(img);
     Mat salmap = vocus.get_salmap();
 
@@ -321,11 +325,17 @@ int main(int argc, char* argv[]) {
     cv::imshow("view", salmap);
     cv::waitKey(3000);
 
+    /*Point min, max;
+    double minV, maxV;
+    minMaxLoc(salmap, &minV, &maxV, &min, &max);
+    std::cout << "Min, x: " << min.x << ", y: " << min.y << std::endl;
+    std::cout << "Max, x: " << max.x << ", y: " << max.y << std::endl;*/
+
     string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
     imwrite(dir + "/salmap.png", salmap);
+
     vocus.write_out(dir);
-
-
-    ros::spinOnce();
+    while(ros::ok())
+      ros::spinOnce();
 	return EXIT_SUCCESS;
 }

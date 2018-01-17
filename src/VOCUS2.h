@@ -36,6 +36,7 @@
 
 using namespace std;
 using namespace cv;
+using namespace cv::cuda;
 
 // different colorspaces
 enum ColorSpace{
@@ -86,11 +87,11 @@ public:
         c_space = OPPONENT_CODI;
         fuse_feature = UNIQUENESS_WEIGHT;
         fuse_conspicuity = ARITHMETIC_MEAN;
-		start_layer = 0;
+				start_layer = 0;
         stop_layer = 8;
-        center_sigma = 3;
-        surround_sigma = 15;
-        n_scales = 4;
+        center_sigma = 1;
+        surround_sigma = 1;
+        n_scales = 9;
         normalize = true;
         pyr_struct = CLASSIC;
         orientation = true;
@@ -206,12 +207,14 @@ private:
     vector<Mat> pyr_center_b, pyr_surround_b;
 
 
+
 	// vector to hold the edge (laplace) pyramid
 	vector<vector<Mat> > pyr_laplace;
 
 	bool salmap_ready, splitted_ready, processed;
 
 	// process image wrt. the desired pyramid structure
+	void gaborFilterImages(const Mat &base, Mat &out, int orientation, float sigma, int scale);
 	void pyramid_classic(const Mat& image);
 	void pyramid_new(const Mat& image);
 	void pyramid_codi(const Mat& image);

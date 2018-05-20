@@ -32,6 +32,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <vocus2/vocus_paramsConfig.h>
 #include <boost/shared_ptr.hpp>
+#include <opencv2/plot.hpp>
 
 #include "VOCUS2.h"
 
@@ -90,127 +91,6 @@ void callback(vocus2::vocus_paramsConfig &config, uint32_t level) {
   vocus.setCfg(cfg);
 }
 
-void print_usage(){
-
-	cout << "===== SALIENCY =====" << endl << endl;
-
-	cout << "   -x <name>" << "\t\t" << "Config file (is loaded first, additional options have higher priority)" << endl << endl;
-
-	cout << "   -C <value>" << "\t\t" << "Used colorspace [default: 1]:" << endl;
-	cout << "\t\t   " << "0: LAB" << endl;
-	cout << "\t\t   " << "1: Opponent (CoDi)" << endl;
-	cout << "\t\t   " << "2: Opponent (Equal domains)\n" << endl;
-
-	cout << "   -f <value>" << "\t\t" << "Fusing operation (Feature maps) [default: 0]:" << endl;
-	cout << "   -F <value>" << "\t\t" << "Fusing operation (Conspicuity/Saliency maps) [default: 0]:" << endl;
-
-	cout << "\t\t   " << "0: Arithmetic mean" << endl;
-	cout << "\t\t   " << "1: Max" << endl;
-	cout << "\t\t   " << "2: Uniqueness weight\n" << endl;
-
-	cout << "   -p <value>" << "\t\t" << "Pyramidal structure [default: 2]:" << endl;
-
-	cout << "\t\t   " << "0: Two independant pyramids (Classic)" << endl;
-	cout << "\t\t   " << "1: Two pyramids derived from a base pyramid (CoDi-like)" << endl;
-	cout << "\t\t   " << "2: Surround pyramid derived from center pyramid (New)\n" << endl;
-
-	cout << "   -l <value>" << "\t\t" << "Start layer (included) [default: 0]" << endl << endl;
-
-	cout << "   -L <value>" << "\t\t" << "Stop layer (included) [default: 4]" << endl << endl;
-
-	cout << "   -S <value>" << "\t\t" << "No. of scales [default: 2]" << endl << endl;
-
-	cout << "   -c <value>" << "\t\t" << "Center sigma [default: 2]" << endl << endl;
-
-	cout << "   -s <value>" << "\t\t" << "Surround sigma [default: 10]" << endl << endl;
-
-	//cout << "   -r" << "\t\t" << "Use orientation [default: off]  " << endl << endl;
-
-	cout << "   -e" << "\t\t" << "Use Combined Feature [default: off]" << endl << endl;
-
-
-	cout << "===== MISC (NOT INCLUDED IN A CONFIG FILE) =====" << endl << endl;
-
-	cout << "   -v <id>" << "\t\t" << "Webcam source" << endl << endl;
-
-	cout << "   -V" << "\t\t" << "Video files" << endl << endl;
-
-	cout << "   -t <value>" << "\t\t" << "MSR threshold (percentage of fixation) [default: 0.75]" << endl << endl;
-
-	cout << "   -N" << "\t\t" << "No visualization" << endl << endl;
-
-	cout << "   -o <path>" << "\t\t" << "WRITE results to specified path [default: <input_path>/saliency/*]" << endl << endl;
-
-	cout << "   -w <path>" << "\t\t" << "WRITE all intermediate maps to an existing folder" << endl << endl;
-
-	cout << "   -b" << "\t\t" << "Add center bias to the saliency map\n" << endl << endl;
-
-}
-
-bool process_arguments(VOCUS2_Cfg& cfg){
-
-	if(MSR_THRESH < 0 || MSR_THRESH > 1){
-		cerr << "MSR threshold must be in the range [0,1]" << endl;
-		return false;
-	}
-
-    if(cfg.start_layer > cfg.stop_layer){
-        cerr << "Start layer cannot be larger than stop layer" << endl;
-        return false;
-    }
-
-	if(cfg.surround_sigma <= cfg.center_sigma){
-		cerr << "Surround sigma must be positive and largen than center sigma" << endl;
-		return false;
-	}
-
-	if(WEBCAM_MODE >= 0 && VIDEO_MODE){
-		return false;
-	}
-
-	return true;
-}
-
-
-//get most salient region
-vector<Point> get_msr(Mat& salmap){
-	double ma;
-	Point p_ma;
-	minMaxLoc(salmap, nullptr, &ma, nullptr, &p_ma);
-
-	vector<Point> msr;
-	msr.push_back(p_ma);
-
-	int pos = 0;
-	float thresh = MSR_THRESH*ma;
-
-	Mat considered = Mat::zeros(salmap.size(), CV_8U);
-	considered.at<uchar>(p_ma) = 1;
-
-	while(pos < (int)msr.size()){
-		int r = msr[pos].y;
-		int c = msr[pos].x;
-
-		for(int dr = -1; dr <= 1; dr++){
-			for(int dc = -1; dc <= 1; dc++){
-				if(dc == 0 && dr == 0) continue;
-				if(considered.ptr<uchar>(r+dr)[c+dc] != 0) continue;
-				if(r+dr < 0 || r+dr >= salmap.rows) continue;
-				if(c+dc < 0 || c+dc >= salmap.cols) continue;
-
-				if(salmap.ptr<float>(r+dr)[c+dc] >= thresh){
-					msr.push_back(Point(c+dc, r+dr));
-					considered.ptr<uchar>(r+dr)[c+dc] = 1;
-				}
-			}
-		}
-		pos++;
-	}
-
-	return msr;
-}
-
-
 
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg, const VOCUS2 &vocus){
@@ -268,27 +148,46 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg, const VOCUS2 &vocus){
   //}
 }
 
-string type2str(int type) {
-  string r;
+//get most salient region
+vector<Point> get_msr(Mat& salmap){
+	vector<Point> msr;
+  while(msr.size()<1){
+    double ma;
+  	Point p_ma;
+  	minMaxLoc(salmap, nullptr, &ma, nullptr, &p_ma);
+	  msr.push_back(p_ma);
+    circle(salmap, p_ma, 5, Scalar(0), -1);
 
-  uchar depth = type & CV_MAT_DEPTH_MASK;
-  uchar chans = 1 + (type >> CV_CN_SHIFT);
-
-  switch ( depth ) {
-    case CV_8U:  r = "8U"; break;
-    case CV_8S:  r = "8S"; break;
-    case CV_16U: r = "16U"; break;
-    case CV_16S: r = "16S"; break;
-    case CV_32S: r = "32S"; break;
-    case CV_32F: r = "32F"; break;
-    case CV_64F: r = "64F"; break;
-    default:     r = "User"; break;
   }
+  /*
 
-  r += "C";
-  r += (chans+'0');
+	int pos = 0;
+	float thresh = MSR_THRESH*ma;
 
-  return r;
+	Mat considered = Mat::zeros(salmap.size(), CV_8U);
+	considered.at<uchar>(p_ma) = 1;
+
+	while(pos < (int)msr.size()){
+		int r = msr[pos].y;
+		int c = msr[pos].x;
+
+		for(int dr = -1; dr <= 1; dr++){
+			for(int dc = -1; dc <= 1; dc++){
+				if(dc == 0 && dr == 0) continue;
+				if(considered.ptr<uchar>(r+dr)[c+dc] != 0) continue;
+				if(r+dr < 0 || r+dr >= salmap.rows) continue;
+				if(c+dc < 0 || c+dc >= salmap.cols) continue;
+
+				if(salmap.ptr<float>(r+dr)[c+dc] >= thresh){
+					msr.push_back(Point(c+dc, r+dr));
+					considered.ptr<uchar>(r+dr)[c+dc] = 1;
+				}
+			}
+		}
+		pos++;
+	}
+*/
+	return msr;
 }
 
 
@@ -314,7 +213,11 @@ int main(int argc, char* argv[]) {
 
 
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/CarScene.png", CV_LOAD_IMAGE_COLOR);
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/test7.png", CV_LOAD_IMAGE_COLOR);
+    //Mat img(101,101, CV_8UC3, Scalar(0, 0, 0));
+    //img.at<int>(50, 50) = 255;
+    //resize(img, img, Size(), 0.5, 0.5);
+    //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/original.png", img);
     std::cout << "The image size : " << img.rows << ", " << img.cols << std::endl;
     vocus.process(img);
     Mat salmap = vocus.get_salmap();
@@ -325,16 +228,20 @@ int main(int argc, char* argv[]) {
     cv::imshow("view", salmap);
     cv::waitKey(3000);
 
-    /*Point min, max;
-    double minV, maxV;
-    minMaxLoc(salmap, &minV, &maxV, &min, &max);
-    std::cout << "Min, x: " << min.x << ", y: " << min.y << std::endl;
-    std::cout << "Max, x: " << max.x << ", y: " << max.y << std::endl;*/
+    cv::Mat copy_salmap = salmap.clone();
+
+    std::vector<Point> msr = get_msr(copy_salmap);
+
+    for(int i = 0; i<msr.size(); i++)
+			  	circle(salmap, msr[i], 5, Scalar(255), 3);
+
 
     string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
     imwrite(dir + "/salmap.png", salmap);
 
+
     vocus.write_out(dir);
+    vocus.plot_gaussian_diff("center_surround_l");
     while(ros::ok())
       ros::spinOnce();
 	return EXIT_SUCCESS;

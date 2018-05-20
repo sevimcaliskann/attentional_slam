@@ -12,10 +12,10 @@ int main(int argc, char **argv)
   std::string nodelet_name = ros::this_node::getName();
   nodelet.load(nodelet_name, "integration/integrate_and_fire_nodelet", remap, nargv);
 
-  boost::shared_ptr<ros::MultiThreadedSpinner> spinner;
-  spinner.reset(new ros::MultiThreadedSpinner());
+  //boost::shared_ptr<ros::MultiThreadedSpinner> spinner;
+  //spinner.reset(new ros::MultiThreadedSpinner());
 
-  spinner->spin();
+  ros::spin();
   return 0;
 
 }

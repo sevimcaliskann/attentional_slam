@@ -5,3 +5,11 @@
   </description>
   </class>
 </library>
+
+<library path="lib/libodometry_nodelet">
+  <class name="vocus2/odometry_nodelet" type="vocus2::odometry_nodelet" base_class_type="nodelet::Nodelet">
+  <description>
+  odometry_nodelet
+  </description>
+  </class>
+</library>

@@ -19,11 +19,8 @@
 
 #include <opencv2/core/core.hpp>
 
-#include <opencv2/highgui/highgui.hpp>
-
 #include <string>
 #include <fstream>
-#include <iostream>
 
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -36,17 +33,9 @@
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/assume_abstract.hpp>
-#include "opencv2/features2d.hpp"
-#include "opencv2/xfeatures2d.hpp"
-#include <sstream>
-#include <opencv2/plot.hpp>
-#include <algorithm>
-
-#include <fstream>
 
 using namespace std;
 using namespace cv;
-using namespace cv::xfeatures2d;
 
 // different colorspaces
 enum ColorSpace{
@@ -56,16 +45,6 @@ enum ColorSpace{
 	OPPONENT = 2, 	// like above but shifted and scaled to [0,1]
 	// splitted RG and BY channels
 	ITTI = 3
-};
-
-enum FeatureChannels{
-    ON_OFF_L = 0,
-    OFF_ON_L = 1,
-    ON_OFF_A = 2,
-    OFF_ON_A = 3,
-    ON_OFF_B = 4,
-    OFF_ON_B = 5,
-    GABOR = 6
 };
 
 // fusing operation to build the feature, conspicuity and saliency map(s)
@@ -94,18 +73,18 @@ class VOCUS2_Cfg{
 public:
 	// default constructor, default parameters
 	VOCUS2_Cfg(){
-        c_space = OPPONENT_CODI;
-        fuse_feature = UNIQUENESS_WEIGHT;
-        fuse_conspicuity = ARITHMETIC_MEAN;
-				start_layer = 0;
-        stop_layer = 8;
-        center_sigma = 0.75;
-        surround_sigma = 1.5;
-        n_scales = 9;
-        normalize = true;
-        pyr_struct = CLASSIC;
-        orientation = true;
-        combined_features = true;
+		c_space = OPPONENT_CODI;
+		fuse_feature = UNIQUENESS_WEIGHT;
+		fuse_conspicuity = UNIQUENESS_WEIGHT;
+		start_layer = 0;
+		stop_layer = 4;
+		center_sigma = 3;
+		surround_sigma = 13;
+		n_scales = 2;
+		normalize = true;
+		pyr_struct = NEW;
+    orientation = true;
+		combined_features = false;
 	};
 
 	// constuctor for a given config file
@@ -127,7 +106,7 @@ public:
 
 	// load xml file
 	bool load(string f_name){
-        std::ifstream conf_file(f_name.c_str());
+		std::ifstream conf_file(f_name);
 		if (conf_file.good()) {
 			boost::archive::xml_iarchive ia(conf_file);
 			ia >> boost::serialization::make_nvp("VOCUS2_Cfg", *this);
@@ -140,7 +119,7 @@ public:
 
 	// wite to xml file
 	bool save(string f_name){
-        std::ofstream conf_file(f_name.c_str());
+		std::ofstream conf_file(f_name);
 		if (conf_file.good()) {
 			boost::archive::xml_oarchive oa(conf_file);
 			oa << boost::serialization::make_nvp("VOCUS2_Cfg", *this);
@@ -190,15 +169,10 @@ public:
 
 	// write all intermediate results to the given directory
 	void write_out(string dir);
-	void plot_gaussian_diff(string dir);
-	void plot_gabors(string dir);
-	void census_transform(const Mat &img, Mat &out);
-
 
 private:
 	VOCUS2_Cfg cfg;
 	Mat input;
-	int cnt = 0;
 
 	Mat salmap;
 	vector<Mat> salmap_splitted, planes;
@@ -207,21 +181,14 @@ private:
 	vector<Mat> on_off_L, off_on_L;
 	vector<Mat> on_off_a, off_on_a;
 	vector<Mat> on_off_b, off_on_b;
-  vector<Mat> on_off_gabor0, off_on_gabor0;
-  vector<Mat> on_off_gabor45, off_on_gabor45;
-  vector<Mat> on_off_gabor90, off_on_gabor90;
-  vector<Mat> on_off_gabor135, off_on_gabor135;
-	vector<Mat> gaussian_filters;
-	vector<vector<Mat>> gabor_filters;
 
 	// vector to hold the gabor pyramids
+	vector<vector<Mat> > gabor;
 
 	// vectors to hold center and surround gaussian pyramids
-    vector<Mat> pyr_center_L, pyr_surround_L;
-    vector<Mat> pyr_center_a, pyr_surround_a;
-    vector<Mat> pyr_center_b, pyr_surround_b;
-
-
+	vector<vector<Mat> > pyr_center_L, pyr_surround_L;
+	vector<vector<Mat> > pyr_center_a, pyr_surround_a;
+	vector<vector<Mat> > pyr_center_b, pyr_surround_b;
 
 	// vector to hold the edge (laplace) pyramid
 	vector<vector<Mat> > pyr_laplace;
@@ -229,12 +196,9 @@ private:
 	bool salmap_ready, splitted_ready, processed;
 
 	// process image wrt. the desired pyramid structure
-	void gaborFilterImages(const Mat &base, Mat &out, int orientation, int scale);
 	void pyramid_classic(const Mat& image);
 	void pyramid_new(const Mat& image);
 	void pyramid_codi(const Mat& image);
-	void prepare_gaussian_kernels(float sigma);
-	void prepare_gabor_kernels(float sigma);
 	// void pyramid_itti(const Mat& image);
 
 	// converts the image to the destination colorspace
@@ -245,7 +209,7 @@ private:
 	void clear();
 
 	// build a multi scale representation based on [Lowe2004]
-    vector<Mat> build_multiscale_pyr(Mat& img, float sigma = 1.f);
+	vector<vector<Mat> > build_multiscale_pyr(Mat& img, float sigma = 1.f);
 
 	// combines a vector of Mats into a single mat
 	Mat fuse(vector<Mat> mat_array, FusionOperation op);
@@ -253,10 +217,10 @@ private:
 	// computes the center surround contrast
 	// uses pyr_center_L
 	void center_surround_diff();
-    void orientationWithCenterSurroundDiff();
+	void orientation();
 
 	// computes the uniqueness of a map by counting the local maxima
-	float compute_uniqueness_weight(Mat& map, float t = 0.01, string filename = "");
+	float compute_uniqueness_weight(Mat& map, float t);
 
 
 	// void mark_equal_neighbours(int r, int c, float value, Mat& map, Mat& marked);

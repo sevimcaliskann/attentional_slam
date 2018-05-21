@@ -240,8 +240,8 @@ int main(int argc, char* argv[]) {
     imwrite(dir + "/salmap.png", salmap);
 
 
-    vocus.write_out(dir);
-    vocus.plot_gaussian_diff("center_surround_l");
+    //vocus.write_out(dir);
+    //vocus.plot_gaussian_diff("center_surround_l");
     while(ros::ok())
       ros::spinOnce();
 	return EXIT_SUCCESS;

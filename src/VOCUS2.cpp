@@ -674,10 +674,10 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 									gaborFilterImages(planes[0], tmp1, 0, o);
 									gaborFilterImages(planes[0], tmp2, 0, o+s+2);
 									diff = (tmp1 - tmp2);
-									//threshold(diff, diff, 0, 1, THRESH_TOZERO);
+									threshold(diff, diff, 0, 1, THRESH_TOZERO);
 									normalize(diff, on_off_gabor0[pos], 0 , 1, NORM_MINMAX);
 									diff = (tmp2 - tmp1);
-									//threshold(diff, diff, 0, 1, THRESH_TOZERO);
+									threshold(diff, diff, 0, 1, THRESH_TOZERO);
 									normalize(diff, off_on_gabor0[pos], 0 , 1, NORM_MINMAX);
 
 
@@ -685,10 +685,10 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 									gaborFilterImages(planes[0], tmp1, 45, o);
 									gaborFilterImages(planes[0],tmp2, 45, o+s+2);
 									diff = (tmp1 - tmp2);
-									//threshold(diff, diff, 0, 1, THRESH_TOZERO);
+									threshold(diff, diff, 0, 1, THRESH_TOZERO);
 									normalize(diff, on_off_gabor45[pos], 0 , 1, NORM_MINMAX);
 									diff = (tmp2 - tmp1);
-									//threshold(diff, diff, 0, 1, THRESH_TOZERO);
+									threshold(diff, diff, 0, 1, THRESH_TOZERO);
 									normalize(diff, off_on_gabor45[pos], 0 , 1, NORM_MINMAX);
 
 
@@ -697,10 +697,10 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 									gaborFilterImages(planes[0], tmp1, 90, o);
 									gaborFilterImages(planes[0], tmp2, 90, o+s+2);
 									diff = (tmp1 - tmp2);
-									//threshold(diff, diff, 0, 1, THRESH_TOZERO);
+									threshold(diff, diff, 0, 1, THRESH_TOZERO);
 									normalize(diff, on_off_gabor90[pos], 0 , 1, NORM_MINMAX);
 									diff = (tmp2 - tmp1);
-									//threshold(diff, diff, 0, 1, THRESH_TOZERO);
+									threshold(diff, diff, 0, 1, THRESH_TOZERO);
 									normalize(diff, off_on_gabor90[pos], 0 , 1, NORM_MINMAX);
 
 
@@ -710,10 +710,10 @@ void VOCUS2::orientationWithCenterSurroundDiff(){
 									gaborFilterImages(planes[0], tmp1, 135, o);
 									gaborFilterImages(planes[0], tmp2, 135, o+s+2);
 									diff = (tmp1 - tmp2);
-									//threshold(diff, diff, 0, 1, THRESH_TOZERO);
+									threshold(diff, diff, 0, 1, THRESH_TOZERO);
 									normalize(diff, on_off_gabor135[pos], 0 , 1, NORM_MINMAX);
 									diff = (tmp2 - tmp1);
-									//threshold(diff, diff, 0, 1, THRESH_TOZERO);
+									threshold(diff, diff, 0, 1, THRESH_TOZERO);
 									normalize(diff, off_on_gabor135[pos], 0 , 1, NORM_MINMAX);
 
 

@@ -372,6 +372,7 @@ void VOCUS2::orientation(){
 			resize(src2, tmp, src1.size(), INTER_NEAREST);
 
 			pyr_laplace[o][s] = src1-tmp;
+			threshold(pyr_laplace[o][s], pyr_laplace[o][s], 0, 1, THRESH_TOZERO);
 		}
 	}
 
@@ -431,10 +432,10 @@ void VOCUS2::orientation(){
 				add(out1, out2, dst);
 				sqrt(dst, dst);
 
-				normalize(dst, dst, 0, 1, NORM_MINMAX);
+				//normalize(dst, dst, 0, 1, NORM_MINMAX);
 				//dst = abs(dst);
-				//minMaxLoc(dst, &mi, &ma);
-				//imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (dst-mi)/(ma-mi)*255.f);
+				minMaxLoc(dst, &mi, &ma);
+				imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (dst-mi)/(ma-mi)*255.f);
 
 				//minMaxLoc(src, &mi, &ma);
 				//imwrite(dir_gabors + "/laplace_" + to_string(o) + "_octave_"+ to_string(s) + ".png", (src-mi)/(ma-mi)*255.f);

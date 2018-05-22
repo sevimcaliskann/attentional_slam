@@ -802,7 +802,7 @@ Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op){
 	vector<Mat> resized;		// temp. array to hold the resized maps
 	resized.resize(n_maps);		// reserve space (needed to use openmp for parallel resizing)
 
-	double ma = 0;
+	/*double ma = 0;
 	for(int i = 0; i<maps.size(); i++){
 		double temp_ma;
 		minMaxLoc(maps[i], nullptr, &ma);
@@ -814,7 +814,7 @@ Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op){
 
 	for(int i = 0; i < maps.size(); i++){
 		normalize(maps[i], maps[i], 0, ma, NORM_MINMAX);
-	}
+	}*/
 
 	// ========== ARTIMETIC MEAN ==========
 

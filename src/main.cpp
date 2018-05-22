@@ -214,8 +214,8 @@ int main(int argc, char* argv[]) {
 
 
     cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/test7.png", CV_LOAD_IMAGE_COLOR);
-    //Mat img(101,101, CV_8UC3, Scalar(0, 0, 0));
-    //img.at<int>(50, 50) = 255;
+    //Mat img(480,640, CV_8UC3, Scalar(0, 0, 0));
+    //img.at<int>(240, 240) = 255;
     //resize(img, img, Size(), 0.5, 0.5);
     //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/original.png", img);
     std::cout << "The image size : " << img.rows << ", " << img.cols << std::endl;

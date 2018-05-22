@@ -384,14 +384,20 @@ void VOCUS2::orientation(){
 
 
 	for(int ori = 0; ori < 4; ori++){
-		int filter_size = 11*cfg.center_sigma+1;
+		int filter_size = 2*11*cfg.center_sigma+1;
 		float waveLength = 0.6;
-		Mat gaborKernel1 = getGaborKernel(Size(filter_size,filter_size), cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, CV_PI/2);
-		Mat gaborKernel2 = getGaborKernel(Size(filter_size,filter_size), cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, 0);
+		Mat gaborKernel1 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, CV_PI/2);
+		Mat gaborKernel2 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, 0);
+		gaborKernel1.convertTo(gaborKernel1, CV_64FC1);
+		gaborKernel2.convertTo(gaborKernel2, CV_64FC1);
 		float u = sum(mean(gaborKernel1))[0];
 		subtract(gaborKernel1, u, gaborKernel1);
 		u = sum(mean(gaborKernel2))[0];
 		subtract(gaborKernel2, u, gaborKernel2);
+
+		//std::cout << "Gabor kernel 1, phase 90 summation: " << sum(mean(gaborKernel1))[0] << std::endl;
+		//std::cout << "Gabor kernel 2, phase 0 summation: " << sum(mean(gaborKernel2))[0] << std::endl;
+		//std::cout << "type: " << gaborKernel1 << std::endl << std::endl;
 
 		//For debugging reasons, saving the gabor patches as images
 		string dir_gabors = "/home/sevim/catkin_ws/src/vocus2/src/results/gabors";
@@ -427,8 +433,11 @@ void VOCUS2::orientation(){
 
 				normalize(dst, dst, 0, 1, NORM_MINMAX);
 				//dst = abs(dst);
-				minMaxLoc(dst, &mi, &ma);
-				imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (dst-mi)/(ma-mi)*255.f);
+				//minMaxLoc(dst, &mi, &ma);
+				//imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (dst-mi)/(ma-mi)*255.f);
+
+				//minMaxLoc(src, &mi, &ma);
+				//imwrite(dir_gabors + "/laplace_" + to_string(o) + "_octave_"+ to_string(s) + ".png", (src-mi)/(ma-mi)*255.f);
 			}
 		}
 	}
@@ -480,6 +489,8 @@ Mat VOCUS2::get_salmap(){
 	vector<Mat> conspicuity_maps;
 	conspicuity_maps.push_back(fuse(feature_intensity, cfg.fuse_conspicuity));
 
+
+
 	if(cfg.combined_features){
 		conspicuity_maps.push_back(fuse(feature_color1, cfg.fuse_conspicuity));
 		if(cfg.orientation) conspicuity_maps.push_back(fuse(feature_orientation, cfg.fuse_conspicuity));
@@ -496,7 +507,11 @@ Mat VOCUS2::get_salmap(){
 	}
 
 
-
+	for(int i = 0; i < conspicuity_maps.size(); i++){
+		double mi, ma;
+		minMaxLoc(conspicuity_maps[i], &mi, &ma);
+		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", (conspicuity_maps[i]-mi)/(ma-mi)*255.f);
+	}
 	// saliency map
 	salmap = fuse(conspicuity_maps, cfg.fuse_conspicuity);
 
@@ -786,6 +801,20 @@ Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op){
 	int n_maps = maps.size();	// no. of maps to fuse
 	vector<Mat> resized;		// temp. array to hold the resized maps
 	resized.resize(n_maps);		// reserve space (needed to use openmp for parallel resizing)
+
+	double ma = 0;
+	for(int i = 0; i<maps.size(); i++){
+		double temp_ma;
+		minMaxLoc(maps[i], nullptr, &ma);
+		if(ma<temp_ma)
+			ma = temp_ma;
+	}
+	ma = min(1.0, ma);
+	//std::cout << "ma: " << ma << std::endl;
+
+	for(int i = 0; i < maps.size(); i++){
+		normalize(maps[i], maps[i], 0, ma, NORM_MINMAX);
+	}
 
 	// ========== ARTIMETIC MEAN ==========
 

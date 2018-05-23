@@ -213,7 +213,8 @@ int main(int argc, char* argv[]) {
 
 
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/test7.png", CV_LOAD_IMAGE_COLOR);
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/airport2.jpg", CV_LOAD_IMAGE_COLOR);
+    //resize(img, img, Size(2*img.rows, 2*img.cols));
     //Mat img(480,640, CV_8UC3, Scalar(0, 0, 0));
     //img.at<int>(240, 240) = 255;
     //resize(img, img, Size(), 0.5, 0.5);
@@ -228,19 +229,19 @@ int main(int argc, char* argv[]) {
     cv::imshow("view", salmap);
     cv::waitKey(3000);
 
-    cv::Mat copy_salmap = salmap.clone();
+    //cv::Mat copy_salmap = salmap.clone();
 
-    std::vector<Point> msr = get_msr(copy_salmap);
+    //std::vector<Point> msr = get_msr(copy_salmap);
 
-    for(int i = 0; i<msr.size(); i++)
-			  	circle(salmap, msr[i], 5, Scalar(255), 3);
+    //for(int i = 0; i<msr.size(); i++)
+			  	//circle(salmap, msr[i], 5, Scalar(255), 3);
 
 
     string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
-    imwrite(dir + "/salmap.png", salmap);
+    //imwrite(dir + "/salmap.png", salmap);
 
 
-    //vocus.write_out(dir);
+    vocus.write_out(dir);
     //vocus.plot_gaussian_diff("center_surround_l");
     while(ros::ok())
       ros::spinOnce();

@@ -151,6 +151,88 @@ void VOCUS2::write_out(string dir){
 	imwrite(dir + "/salmap.png", salmap);
 }
 
+
+
+void VOCUS2::write_out_without_normalization(string dir){
+	if(!salmap_ready) return;
+
+	double mi, ma;
+
+	std::cout << "Writing intermediate results to directory: " << dir <<"/"<< endl;
+
+	for(int i = 0; i < (int)pyr_center_L.size(); i++){
+		for(int j = 0; j < (int)pyr_center_L[i].size(); j++){
+			imwrite(dir + "/pyr_center_L_" + to_string(i) + "_" + to_string(j) + ".png", pyr_center_L[i][j]*255.f);
+
+			imwrite(dir + "/pyr_center_a_" + to_string(i) + "_" + to_string(j) + ".png", pyr_center_a[i][j]*255.f);
+
+			imwrite(dir + "/pyr_center_b_" + to_string(i) + "_" + to_string(j) + ".png", pyr_center_b[i][j]*255.f);
+
+			imwrite(dir + "/pyr_surround_L_" + to_string(i) + "_" + to_string(j) + ".png", pyr_surround_L[i][j]*255.f);
+
+			imwrite(dir + "/pyr_surround_a_" + to_string(i) + "_" + to_string(j) + ".png", pyr_surround_a[i][j]*255.f);
+
+			imwrite(dir + "/pyr_surround_b_" + to_string(i) + "_" + to_string(j) + ".png", pyr_surround_b[i][j]*255.f);
+		}
+	}
+
+	for(int i = 0; i < (int)on_off_L.size(); i++){
+		imwrite(dir + "/on_off_L_" + to_string(i) + ".png", on_off_L[i]*255.f);
+
+		imwrite(dir + "/on_off_a_" + to_string(i) + ".png", on_off_a[i]*255.f);
+
+		imwrite(dir + "/on_off_b_" + to_string(i) + ".png", on_off_b[i]*255.f);
+
+		imwrite(dir + "/off_on_L_" + to_string(i) + ".png", off_on_L[i]*255.f);
+
+		imwrite(dir + "/off_on_a_" + to_string(i) + ".png", off_on_a[i]*255.f);
+
+		imwrite(dir + "/off_on_b_" + to_string(i) + ".png", off_on_b[i]*255.f);
+
+
+	}
+
+	vector<Mat> tmp(6);
+
+	tmp[0] = fuse(on_off_L, cfg.fuse_feature);
+	imwrite(dir + "/feat_on_off_L.png", tmp[0]*255.f);
+
+	tmp[1] = fuse(on_off_a, cfg.fuse_feature);
+	imwrite(dir + "/feat_on_off_a.png", tmp[1]*255.f);
+
+	tmp[2] = fuse(on_off_b, cfg.fuse_feature);
+	imwrite(dir + "/feat_on_off_b.png", tmp[2]*255.f);
+
+	tmp[3] = fuse(off_on_L, cfg.fuse_feature);
+	imwrite(dir + "/feat_off_on_L.png", tmp[3]*255.f);
+
+	tmp[4] = fuse(off_on_a, cfg.fuse_feature);
+	imwrite(dir + "/feat_off_on_a.png", tmp[4]*255.f);
+
+	tmp[5] = fuse(off_on_b, cfg.fuse_feature);
+	imwrite(dir + "/feat_off_on_b.png", tmp[5]*255.f);
+
+	for(int i = 0; i < 3; i++){
+		vector<Mat> tmp2;
+		tmp2.push_back(tmp[i]);
+		tmp2.push_back(tmp[i+3]);
+
+		string ch = "";
+
+		switch(i){
+		case 0: ch = "L"; break;
+		case 1: ch = "a"; break;
+		case 2: ch = "b"; break;
+		}
+
+		Mat tmp3 = fuse(tmp2, cfg.fuse_feature);
+
+		imwrite(dir + "/conspicuity_" + ch + ".png", tmp3*255.f);
+	}
+
+	imwrite(dir + "/salmap.png", salmap);
+}
+
 void VOCUS2::process(const Mat& img){
 	// clone the input image
 	input = img.clone();
@@ -313,6 +395,51 @@ void VOCUS2::pyramid_classic(const Mat& img){
 	pyr_surround_b = build_multiscale_pyr(planes[2], (float)cfg.surround_sigma);
 }
 }
+
+/*void VOCUS2::center_surround_diff(){
+	//int on_off_size = pyr_center_L.size()*cfg.n_scales;
+	int on_off_size = 6;
+
+	on_off_L.resize(on_off_size); off_on_L.resize(on_off_size);
+	on_off_a.resize(on_off_size); off_on_a.resize(on_off_size);
+	on_off_b.resize(on_off_size); off_on_b.resize(on_off_size);
+
+	std::cout << pyr_center_L[0].size() << std::endl;
+	std::cout << pyr_surround_L[0].size() << std::endl;
+
+	// compute DoG by subtracting layers of two pyramids
+	int pos = 0;
+	for(int o = 2; o <=4; o++){
+#pragma omp parallel for
+		for(int s = 2; s <=3; s++){
+			Mat diff;
+			//int pos = o*cfg.n_scales+s;
+			// ========== L channel ==========
+			Mat tmp;
+			resize(pyr_surround_L[o+s][0], pyr_surround_L[o+s][0], pyr_center_L[o][0].size());
+			diff = pyr_center_L[o][0]-pyr_surround_L[o+s][0];
+			threshold(diff, on_off_L[pos], 0, 1, THRESH_TOZERO);
+			diff *= -1.f;
+			threshold(diff, off_on_L[pos], 0, 1, THRESH_TOZERO);
+
+			resize(pyr_surround_a[o+s][0], pyr_surround_a[o+s][0], pyr_center_a[o][0].size());
+			// ========== a channel ==========
+			diff = pyr_center_a[o][0]-pyr_surround_a[o+s][0];
+			threshold(diff, on_off_a[pos], 0, 1, THRESH_TOZERO);
+			diff *= -1.f;
+			threshold(diff, off_on_a[pos], 0, 1, THRESH_TOZERO);
+
+			resize(pyr_surround_b[o+s][0], pyr_surround_b[o+s][0], pyr_center_b[o][0].size());
+			// ========== b channel ==========
+			diff = pyr_center_b[o][0]-pyr_surround_b[o+s][0];
+			threshold(diff, on_off_b[pos], 0, 1, THRESH_TOZERO);
+			diff *= -1.f;
+			threshold(diff, off_on_b[pos], 0, 1, THRESH_TOZERO);
+			pos++;
+		}
+	}
+}*/
+
 
 void VOCUS2::center_surround_diff(){
 	int on_off_size = pyr_center_L.size()*cfg.n_scales;
@@ -659,7 +786,51 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 	return pyr;
 }
 
+
+void VOCUS2::census_transform(const Mat &img, Mat &out){
+	unsigned int census = 0;
+ 	unsigned int bit = 0;
+ 	int m = 3;
+ 	int n = 3;//window size
+ 	int i,j,x,y;
+ 	int shiftCount = 0;
+	Size imgSize = img.size();
+	out = Mat::zeros(imgSize, CV_8U);
+ 	for (x = m/2; x < imgSize.height - m/2; x++)
+ 	{
+   	for(y = n/2; y < imgSize.width - n/2; y++)
+   	{
+     	census = 0;
+     	shiftCount = 0;
+     	for (i = x - m/2; i <= x + m/2; i++)
+     	{
+       	for (j = y - n/2; j <= y + n/2; j++)
+       	{
+
+         	if( shiftCount != m*n/2 )//skip the center pixel
+         	{
+         		census <<= 1;
+         		if( img.at<float>(i,j) < img.at<float>(x,y) )//compare pixel values in the neighborhood
+         			bit = 1;
+         		else
+         			bit = 0;
+         		census = census + bit;
+         //cout<<census<<" ";*/
+
+         	}
+        	shiftCount ++;
+       }
+     }
+    //cout<<endl;
+
+    out.ptr<uchar>(x)[y] = census;
+   	}
+ 	}
+}
+
 float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
+	//normalize(img, img, 0, 1, NORM_MINMAX);
+	float s = 0;
 
 	// hold maximal points
 	vector<Point> point_maxima;
@@ -729,6 +900,7 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 				if(greater.size() == 0){
 					// add as maximum
 					point_maxima.push_back(Point(c,r));
+					s+=val;
 					n_max++;
 				}
 			}
@@ -784,6 +956,7 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 				// case 2.1: all neighbours are lower
 				if(greater.size() == 0){
 					blob_maxima.push_back(equal);
+					s+=val;
 					n_max++;
 				}
 			}
@@ -791,8 +964,18 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 	}
 
 	if(n_max == 0) return 0.f;
+	//else if(s/n_max>1) return 0.f;
+	/*else{
+		//std::cout << "weight is: " << 1 - s/n_max << std::endl;
+		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(1/sqrt(n_max)) + ".png", img*255.f);
+		return 1 - s/n_max;
+		//return 1/sqrt(n_max);
+	}*/
 	else return 1/sqrt(n_max);
 }
+
+
+
 
 //Fuse maps using operation
 Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op){
@@ -806,17 +989,17 @@ Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op){
 	/*double ma = 0;
 	for(int i = 0; i<maps.size(); i++){
 		double temp_ma;
-		minMaxLoc(maps[i], nullptr, &ma);
+		minMaxLoc(maps[i], nullptr, &temp_ma);
 		if(ma<temp_ma)
 			ma = temp_ma;
 	}
 	ma = min(1.0, ma);
-	//std::cout << "ma: " << ma << std::endl;
+	std::cout << "ma: " << ma << std::endl;
 
 	for(int i = 0; i < maps.size(); i++){
 		normalize(maps[i], maps[i], 0, ma, NORM_MINMAX);
-	}*/
-
+	}
+*/
 	// ========== ARTIMETIC MEAN ==========
 
 	if(op == ARITHMETIC_MEAN){

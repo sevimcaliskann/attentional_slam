@@ -80,7 +80,7 @@ public:
 		stop_layer = 8;
 		center_sigma = 3;
 		surround_sigma = 13;
-		n_scales = 2;
+		n_scales = 1;
 		normalize = true;
 		pyr_struct = NEW;
     orientation = true;
@@ -169,6 +169,7 @@ public:
 
 	// write all intermediate results to the given directory
 	void write_out(string dir);
+	void write_out_without_normalization(string dir);
 
 private:
 	VOCUS2_Cfg cfg;
@@ -221,6 +222,7 @@ private:
 
 	// computes the uniqueness of a map by counting the local maxima
 	float compute_uniqueness_weight(Mat& map, float t);
+	void census_transform(const Mat &img, Mat &out);
 
 
 	// void mark_equal_neighbours(int r, int c, float value, Mat& map, Mat& marked);

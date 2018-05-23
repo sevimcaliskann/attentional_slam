@@ -78,11 +78,11 @@ public:
 		fuse_conspicuity = UNIQUENESS_WEIGHT;
 		start_layer = 0;
 		stop_layer = 8;
-		center_sigma = 3;
-		surround_sigma = 13;
+		center_sigma = 2;
+		surround_sigma = 5;
 		n_scales = 1;
 		normalize = true;
-		pyr_struct = NEW;
+		pyr_struct = CODI;
     orientation = true;
 		combined_features = false;
 	};
@@ -170,6 +170,7 @@ public:
 	// write all intermediate results to the given directory
 	void write_out(string dir);
 	void write_out_without_normalization(string dir);
+	void write_gabors(string dir);
 
 private:
 	VOCUS2_Cfg cfg;

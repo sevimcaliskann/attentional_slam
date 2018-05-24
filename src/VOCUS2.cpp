@@ -494,6 +494,121 @@ void VOCUS2::center_surround_diff(){
 	}
 }*/
 
+/*void VOCUS2::orientation(){
+
+	// reserve space
+	pyr_laplace.resize(pyr_center_L.size());
+	for(int o = 0; o < (int)pyr_center_L.size(); o++){
+		pyr_laplace[o].resize(pyr_center_L[o].size());
+	}
+
+	gabor.resize(4);
+	for(int i = 0; i < 4; i++) gabor[i].resize(6);
+
+
+	// build all layers of laplace pyramid except the last one
+#pragma omp parallel for
+	for(int o = 0; o < (int)pyr_center_L.size()-1; o++){
+		for(int s = 0; s < (int)pyr_center_L[o].size(); s++){
+			Mat& src1 = pyr_center_L[o][s];
+			Mat& src2 = pyr_center_L[o+1][s];
+
+			Mat tmp;
+			resize(src2, tmp, src1.size(), INTER_NEAREST);
+
+			pyr_laplace[o][s] = src1-tmp;
+			threshold(pyr_laplace[o][s], pyr_laplace[o][s], 0, 1, THRESH_TOZERO);
+		}
+	}
+
+	// copy last layer
+	for(int s = 0; s < cfg.n_scales; s++){
+		pyr_laplace[pyr_center_L.size()-1][s] = pyr_center_L[pyr_center_L.size()-1][s];
+	}
+
+
+
+
+	for(int ori = 0; ori < 4; ori++){
+		int filter_size = 2*11*cfg.center_sigma+1;
+		float waveLength = 0.6;
+		Mat gaborKernel1 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, CV_PI/2);
+		Mat gaborKernel2 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, 0);
+		gaborKernel1.convertTo(gaborKernel1, CV_64FC1);
+		gaborKernel2.convertTo(gaborKernel2, CV_64FC1);
+		float u = sum(mean(gaborKernel1))[0];
+		subtract(gaborKernel1, u, gaborKernel1);
+		u = sum(mean(gaborKernel2))[0];
+		subtract(gaborKernel2, u, gaborKernel2);
+
+		//std::cout << "Gabor kernel 1, phase 90 summation: " << sum(mean(gaborKernel1))[0] << std::endl;
+		//std::cout << "Gabor kernel 2, phase 0 summation: " << sum(mean(gaborKernel2))[0] << std::endl;
+		//std::cout << "type: " << gaborKernel1 << std::endl << std::endl;
+
+		//For debugging reasons, saving the gabor patches as images
+		string dir_gabors = "/home/sevim/catkin_ws/src/vocus2/src/results/gabors";
+		double ma, mi;
+		//minMaxLoc(gaborKernel1, &mi, &ma);
+		//imwrite(dir_gabors + "/" + to_string(ori) + "_phase_90.png", (gaborKernel1-mi)/(ma-mi)*255.f);
+
+		//minMaxLoc(gaborKernel2, &mi, &ma);
+		//imwrite(dir_gabors + "/" + to_string(ori) + "_phase_0.png", (gaborKernel2-mi)/(ma-mi)*255.f);
+		int pos = 0;
+		for(int o = 2; o <=4; o++){
+			for(int s = 2; s <=3; s++){
+
+				Mat& src1 = pyr_center_L[o][0];
+				Mat& src2 = pyr_surround_L[o+s][0];
+				Mat& dst = gabor[ori][pos];
+
+
+				Mat out1, out2;
+				Mat gabor1, gabor2;
+
+				filter2D(src1, out1, -1, gaborKernel1, Point(-1,-1), 0, BORDER_REPLICATE);
+				filter2D(src1, out2, -1, gaborKernel2, Point(-1,-1), 0, BORDER_REPLICATE);
+
+				multiply(out1, out1, out1);
+				multiply(out2, out2, out2);
+				add(out1, out2, gabor1);
+				sqrt(gabor1, gabor1);
+
+
+
+				filter2D(src2, out1, -1, gaborKernel1, Point(-1,-1), 0, BORDER_REPLICATE);
+				filter2D(src2, out2, -1, gaborKernel2, Point(-1,-1), 0, BORDER_REPLICATE);
+
+				multiply(out1, out1, out1);
+				multiply(out2, out2, out2);
+				add(out1, out2, gabor2);
+				sqrt(gabor2, gabor2);
+
+				resize(gabor2, gabor2, gabor1.size());
+				dst = gabor1 - gabor2;
+				threshold(dst, dst, 0, 1, THRESH_TOZERO);
+
+				//normalize(dst, dst, 0, 1, NORM_MINMAX);
+				//dst = abs(dst);
+				minMaxLoc(dst, &mi, &ma);
+				imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (dst-mi)/(ma-mi)*255.f);
+
+
+				minMaxLoc(gabor1, &mi, &ma);
+				imwrite(dir_gabors + "/gabor1_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (gabor1-mi)/(ma-mi)*255.f);
+
+				minMaxLoc(gabor2, &mi, &ma);
+				imwrite(dir_gabors + "/gabor2_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (gabor2-mi)/(ma-mi)*255.f);
+
+				//minMaxLoc(src, &mi, &ma);
+				//imwrite(dir_gabors + "/laplace_" + to_string(o) + "_octave_"+ to_string(s) + ".png", (src-mi)/(ma-mi)*255.f);
+				pos++;
+			}
+		}
+	}
+}*/
+
+
+
 void VOCUS2::orientation(){
 
 	// reserve space
@@ -579,8 +694,10 @@ void VOCUS2::orientation(){
 
 				//normalize(dst, dst, 0, 1, NORM_MINMAX);
 				//dst = abs(dst);
-				minMaxLoc(dst, &mi, &ma);
-				imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (dst-mi)/(ma-mi)*255.f);
+				//minMaxLoc(dst, &mi, &ma);
+				//imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", dst*255.f);
+
+
 
 				//minMaxLoc(src, &mi, &ma);
 				//imwrite(dir_gabors + "/laplace_" + to_string(o) + "_octave_"+ to_string(s) + ".png", (src-mi)/(ma-mi)*255.f);
@@ -589,95 +706,6 @@ void VOCUS2::orientation(){
 	}
 }
 
-
-
-/*void VOCUS2::orientation(){
-
-	// reserve space
-	pyr_laplace.resize(6);
-	for(int o = 0; o <=6; o++){
-		pyr_laplace[o].resize(1);
-	}
-
-	gabor.resize(4);
-	for(int i = 0; i < 4; i++) gabor[i].resize(6);
-
-
-	// build all layers of laplace pyramid except the last one
-	int pos = 0;
-#pragma omp parallel for
-	for(int o = 2; o <=4; o++){
-		for(int s = 2; s <=3; s++){
-			Mat& src1 = pyr_center_L[o][0];
-			Mat& src2 = pyr_center_L[o+s][0];
-
-			Mat tmp;
-			resize(src2, tmp, src1.size(), INTER_NEAREST);
-
-			pyr_laplace[pos][0] = src1-tmp;
-			threshold(pyr_laplace[pos][0], pyr_laplace[pos][0], 0, 1, THRESH_TOZERO);
-			pos++;
-		}
-	}
-
-
-
-
-	for(int ori = 0; ori < 4; ori++){
-		int filter_size = 2*11*cfg.center_sigma+1;
-		float waveLength = 0.6;
-		Mat gaborKernel1 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, CV_PI/2);
-		Mat gaborKernel2 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, 0);
-		gaborKernel1.convertTo(gaborKernel1, CV_64FC1);
-		gaborKernel2.convertTo(gaborKernel2, CV_64FC1);
-		float u = sum(mean(gaborKernel1))[0];
-		subtract(gaborKernel1, u, gaborKernel1);
-		u = sum(mean(gaborKernel2))[0];
-		subtract(gaborKernel2, u, gaborKernel2);
-
-		//std::cout << "Gabor kernel 1, phase 90 summation: " << sum(mean(gaborKernel1))[0] << std::endl;
-		//std::cout << "Gabor kernel 2, phase 0 summation: " << sum(mean(gaborKernel2))[0] << std::endl;
-		//std::cout << "type: " << gaborKernel1 << std::endl << std::endl;
-
-		//For debugging reasons, saving the gabor patches as images
-		string dir_gabors = "/home/sevim/catkin_ws/src/vocus2/src/results/gabors";
-		double ma, mi;
-		//minMaxLoc(gaborKernel1, &mi, &ma);
-		//imwrite(dir_gabors + "/" + to_string(ori) + "_phase_90.png", (gaborKernel1-mi)/(ma-mi)*255.f);
-
-		//minMaxLoc(gaborKernel2, &mi, &ma);
-		//imwrite(dir_gabors + "/" + to_string(ori) + "_phase_0.png", (gaborKernel2-mi)/(ma-mi)*255.f);
-
-		for(int o = 0; o < (int)pyr_laplace.size(); o++){
-
-
-				//float k_sum =  sum(sum(abs(gaborKernel)))[0];
-				//gaborKernel /= k_sum;
-
-				Mat& src = pyr_laplace[o][0];
-				//resize(src, src, input.size(), 0, 0, INTER_CUBIC);
-				Mat& dst = gabor[ori][o];
-
-				Mat out1, out2;
-
-				filter2D(src, out1, -1, gaborKernel1, Point(-1,-1), 0, BORDER_REPLICATE);
-				filter2D(src, out2, -1, gaborKernel2, Point(-1,-1), 0, BORDER_REPLICATE);
-
-				multiply(out1, out1, out1);
-				multiply(out2, out2, out2);
-				add(out1, out2, dst);
-				sqrt(dst, dst);
-
-				//normalize(dst, dst, 0, 1, NORM_MINMAX);
-				//dst = abs(dst);
-				minMaxLoc(dst, &mi, &ma);
-				imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(0) + ".png", (dst-mi)/(ma-mi)*255.f);
-
-				//minMaxLoc(src, &mi, &ma);
-				//imwrite(dir_gabors + "/laplace_" + to_string(o) + "_octave_"+ to_string(s) + ".png", (src-mi)/(ma-mi)*255.f);
-		}
-	}
-}*/
 
 Mat VOCUS2::get_salmap(){
 
@@ -715,7 +743,7 @@ Mat VOCUS2::get_salmap(){
 	if(cfg.orientation /*&& cfg.combined_features*/){
 		for(int i = 0; i < 4; i++){
 			//std::cout << "Gabor " << i << " weights !" << std::endl;
-			feature_orientation.push_back(fuse(gabor[i], cfg.fuse_feature));
+			feature_orientation.push_back(fuse(gabor[i], cfg.fuse_feature, false));
 
 
 		}
@@ -729,7 +757,7 @@ Mat VOCUS2::get_salmap(){
 
 	if(cfg.combined_features){
 		conspicuity_maps.push_back(fuse(feature_color1, cfg.fuse_conspicuity));
-		if(cfg.orientation) conspicuity_maps.push_back(fuse(feature_orientation, cfg.fuse_conspicuity));
+		if(cfg.orientation) conspicuity_maps.push_back(fuse(feature_orientation, cfg.fuse_conspicuity, false));
 
 	}
 	else{
@@ -737,17 +765,17 @@ Mat VOCUS2::get_salmap(){
 		conspicuity_maps.push_back(fuse(feature_color2, cfg.fuse_conspicuity));
 		if(cfg.orientation){
 			for(int i = 0; i < 4; i++){
-				conspicuity_maps.push_back(fuse(gabor[i], cfg.fuse_feature));
+				conspicuity_maps.push_back(fuse(gabor[i], cfg.fuse_feature, false));
 			}
 		}
 	}
 
 
-	for(int i = 0; i < conspicuity_maps.size(); i++){
+	/*for(int i = 0; i < conspicuity_maps.size(); i++){
 		double mi, ma;
 		minMaxLoc(conspicuity_maps[i], &mi, &ma);
 		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", (conspicuity_maps[i]-mi)/(ma-mi)*255.f);
-	}
+	}*/
 	// saliency map
 	salmap = fuse(conspicuity_maps, cfg.fuse_conspicuity);
 
@@ -1075,18 +1103,18 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 	/*else if(s/n_max>1) return 0.f;
 	else{
 		//std::cout << "weight is: " << 1 - s/n_max << std::endl;
-		Mat tmp;
-		resize(img, tmp, input.size(), 0, 0, INTER_CUBIC);
+		//Mat tmp;
+		//resize(img, tmp, input.size(), 0, 0, INTER_CUBIC);
 		double ma;
 		minMaxLoc(img, nullptr, &ma);
-		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(ma - s/n_max) + "_"+ to_string(ma)+"_"+ to_string(s/n_max) + ".png", tmp*255.f);
+		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(ma - s/n_max) + "_"+ to_string(ma)+"_"+ to_string(s/n_max) + ".png", tmp*255.f);
 		return ma - s/n_max;
 		//return 1/sqrt(n_max);
 	}*/
 	else  {
-		Mat tmp;
-		resize(img, tmp, input.size(), 0, 0, INTER_CUBIC);
-		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(1/sqrt(n_max)) + ".png", tmp*255.f);
+		//Mat tmp;
+		//resize(img, tmp, input.size(), 0, 0, INTER_CUBIC);
+		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(1/sqrt(n_max)) + ".png", tmp*255.f);
 		return 1/sqrt(n_max);
 	}
 }
@@ -1095,26 +1123,27 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 
 
 //Fuse maps using operation
-Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op){
+Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op, bool norm){
 
 	// resulting map that is returned
 	Mat fused = Mat::zeros(maps[0].size(), CV_32F);
 	int n_maps = maps.size();	// no. of maps to fuse
 	vector<Mat> resized;		// temp. array to hold the resized maps
 	resized.resize(n_maps);		// reserve space (needed to use openmp for parallel resizing)
+	if(norm){
+			double ma = 0;
+			for(int i = 0; i<maps.size(); i++){
+				double temp_ma;
+				minMaxLoc(maps[i], nullptr, &temp_ma);
+				if(ma<temp_ma)
+					ma = temp_ma;
+			}
+			ma = min(1.0, ma);
 
-	double ma = 0;
-	for(int i = 0; i<maps.size(); i++){
-		double temp_ma;
-		minMaxLoc(maps[i], nullptr, &temp_ma);
-		if(ma<temp_ma)
-			ma = temp_ma;
-	}
-	ma = min(1.0, ma);
-	std::cout << "ma: " << ma << std::endl;
+			for(int i = 0; i < maps.size(); i++){
+				normalize(maps[i], maps[i], 0, ma, NORM_MINMAX);
+			}
 
-	for(int i = 0; i < maps.size(); i++){
-		normalize(maps[i], maps[i], 0, ma, NORM_MINMAX);
 	}
 
 	// ========== ARTIMETIC MEAN ==========

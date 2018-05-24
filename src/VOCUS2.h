@@ -79,7 +79,7 @@ public:
 		start_layer = 0;
 		stop_layer = 8;
 		center_sigma = 2;
-		surround_sigma = 5;
+		surround_sigma = 3;
 		n_scales = 1;
 		normalize = true;
 		pyr_struct = CODI;
@@ -214,7 +214,7 @@ private:
 	vector<vector<Mat> > build_multiscale_pyr(Mat& img, float sigma = 1.f);
 
 	// combines a vector of Mats into a single mat
-	Mat fuse(vector<Mat> mat_array, FusionOperation op);
+	Mat fuse(vector<Mat> mat_array, FusionOperation op, bool norm = true);
 
 	// computes the center surround contrast
 	// uses pyr_center_L

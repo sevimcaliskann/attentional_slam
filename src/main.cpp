@@ -60,7 +60,7 @@ VOCUS2 vocus;
 //ros::Publisher pose;
 boost::shared_ptr<ros::Publisher> pub;
 
-
+vector<Point> get_msr(Mat& salmap);
 
 vector<string> split_string(const string &s, char delim) {
     vector<string> elems;
@@ -93,7 +93,7 @@ void callback(vocus2::vocus_paramsConfig &config, uint32_t level) {
 
 
 
-void imageCallback(const sensor_msgs::ImageConstPtr& msg, const VOCUS2 &vocus){
+void imageCallback(const sensor_msgs::ImageConstPtr& msg, VOCUS2 &vocus){
   //while(ros::ok()){
     cv_bridge::CvImagePtr cv_ptr;
     //geometry_msgs::PointStamped p_;
@@ -104,40 +104,28 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg, const VOCUS2 &vocus){
         cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
         cv::Mat img = cv_ptr->image;
 
-        //Mat salmap;
-        //std::vector<cv::Mat> salmap_list;
+        Mat salmap;
+        vocus.process(img);
 
-        //vocus.process(img);
+        salmap = vocus.get_salmap();
+        vector<Point> msr = get_msr(salmap);
 
-        //salmap = vocus.get_salmap();
+        Point2f center;
+        float rad;
 
-        //salmap = vocus.get_salmap();
-        //if(CENTER_BIAS)
-          //  vocus.add_center_bias(0.5);
-
-
-        /*for(int i = 0; i<salmap_list.size(); i++){
-            salmap = salmap_list[i];
-            vector<Point> msr = get_msr(salmap);
-
-            Point2f center;
-            float rad;
-
-            cv::minEnclosingCircle(msr, center, rad);
-            p_.header.stamp = msg->header.stamp;
-            p_.header.frame_id = "/saliency_points";
-            p_.point.x = center.x;
-            p_.point.y = center.y;
-            p_.point.z = rad;
-            pose.publish(p_);
-
-            //cv::cvtColor(salmap, salmap, cv::COLOR_GRAY2BGR);
-            circle(img_rgb, center, 10, Scalar(255,0,0),CV_FILLED, 8,0);
-        }*/
-
-
-
-        sensor_msgs::ImagePtr img_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();
+        cv::minEnclosingCircle(msr, center, rad);
+        if(rad >= 5 && rad <= max(img.cols, img.rows)){
+            circle(salmap, center, (int)rad, Scalar(0,0,255), 3);
+        }
+        std::cout << "salmap type: " << salmap.type() << std::endl;
+        salmap.convertTo(salmap, CV_8U, 255.f);
+        //p_.header.stamp = msg->header.stamp;
+        //p_.header.frame_id = "/saliency_points";
+        //p_.point.x = center.x;
+        //p_.point.y = center.y;
+        //p_.point.z = rad;
+        //pose.publish(p_);
+        sensor_msgs::ImagePtr img_msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", salmap).toImageMsg();
         pub->publish(img_msg);
 
     }
@@ -150,16 +138,12 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg, const VOCUS2 &vocus){
 
 //get most salient region
 vector<Point> get_msr(Mat& salmap){
-	vector<Point> msr;
-  while(msr.size()<1){
-    double ma;
-  	Point p_ma;
-  	minMaxLoc(salmap, nullptr, &ma, nullptr, &p_ma);
-	  msr.push_back(p_ma);
-    circle(salmap, p_ma, 5, Scalar(0), -1);
+	double ma;
+	Point p_ma;
+	minMaxLoc(salmap, nullptr, &ma, nullptr, &p_ma);
 
-  }
-  /*
+	vector<Point> msr;
+	msr.push_back(p_ma);
 
 	int pos = 0;
 	float thresh = MSR_THRESH*ma;
@@ -186,7 +170,7 @@ vector<Point> get_msr(Mat& salmap){
 		}
 		pos++;
 	}
-*/
+
 	return msr;
 }
 
@@ -200,7 +184,7 @@ int main(int argc, char* argv[]) {
 
     image_transport::ImageTransport it(nh);
     //image_transport::Subscriber sub = it.subscribe("image", 1, imageCallback);
-    image_transport::Subscriber sub = it.subscribe("image", 10, boost::bind(&imageCallback, _1, boost::ref(vocus)));
+    image_transport::Subscriber sub = it.subscribe("image", 1, boost::bind(&imageCallback, _1, boost::ref(vocus)));
     pub.reset(new ros::Publisher(nh.advertise<sensor_msgs::Image>("/marked_salient_image", 1)));
     //pose = nh.advertise<geometry_msgs::PointStamped>("saliency_points", 1000);
 
@@ -223,27 +207,27 @@ int main(int argc, char* argv[]) {
     vocus.process(img);
     Mat salmap = vocus.get_salmap();
 
-    //GaussianBlur(salmap, salmap, Size(5,5), 3, 3, BORDER_REPLICATE);
+
+    vector<Point> msr = get_msr(salmap);
+
+	  Point2f center;
+		float rad;
+		minEnclosingCircle(msr, center, rad);
+
+		if(rad >= 5 && rad <= max(img.cols, img.rows)){
+			  circle(salmap, center, (int)rad, Scalar(0,0,255), 3);
+		}
 
     cv::namedWindow("view", WINDOW_AUTOSIZE);
     cv::imshow("view", salmap);
     cv::waitKey(3000);
 
-    //cv::Mat copy_salmap = salmap.clone();
-
-    //std::vector<Point> msr = get_msr(copy_salmap);
-
-    //for(int i = 0; i<msr.size(); i++)
-			  	//circle(salmap, msr[i], 5, Scalar(255), 3);
-
 
     string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
-    //imwrite(dir + "/salmap.png", salmap);
-
-
     vocus.write_out(dir);
-    //vocus.write_gabors(dir);
-    //vocus.plot_gaussian_diff("center_surround_l");
+
+
+
     while(ros::ok())
       ros::spinOnce();
 	return EXIT_SUCCESS;

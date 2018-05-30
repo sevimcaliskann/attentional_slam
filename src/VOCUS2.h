@@ -222,7 +222,7 @@ private:
 	void orientation();
 
 	// computes the uniqueness of a map by counting the local maxima
-	float compute_uniqueness_weight(Mat& map, float t=0.f);
+	float compute_uniqueness_weight(Mat& map, float t=0.5f);
 	void census_transform(const Mat &img, Mat &out);
 
 

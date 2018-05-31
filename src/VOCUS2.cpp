@@ -511,18 +511,9 @@ void VOCUS2::orientation(){
 		u = sum(mean(gaborKernel2))[0];
 		subtract(gaborKernel2, u, gaborKernel2);
 
-		//std::cout << "Gabor kernel 1, phase 90 summation: " << sum(mean(gaborKernel1))[0] << std::endl;
-		//std::cout << "Gabor kernel 2, phase 0 summation: " << sum(mean(gaborKernel2))[0] << std::endl;
-		//std::cout << "type: " << gaborKernel1 << std::endl << std::endl;
-
 		//For debugging reasons, saving the gabor patches as images
 		string dir_gabors = "/home/sevim/catkin_ws/src/vocus2/src/results/gabors";
 		double ma, mi;
-		//minMaxLoc(gaborKernel1, &mi, &ma);
-		//imwrite(dir_gabors + "/" + to_string(ori) + "_phase_90.png", (gaborKernel1-mi)/(ma-mi)*255.f);
-
-		//minMaxLoc(gaborKernel2, &mi, &ma);
-		//imwrite(dir_gabors + "/" + to_string(ori) + "_phase_0.png", (gaborKernel2-mi)/(ma-mi)*255.f);
 		int pos = 0;
 		for(int o = 2; o <=4; o++){
 			for(int s = 2; s <=3; s++){
@@ -711,16 +702,9 @@ Mat VOCUS2::get_salmap(){
 	}
 
 	vector<Mat> feature_orientation;
-	if(cfg.orientation /*&& cfg.combined_features*/){
+	if(cfg.orientation && cfg.combined_features){
 		for(int i = 0; i < 4; i++){
-			for(int j = 0; j < gabor[i].size(); j++){
-				imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/gabor_" + to_string(i) + "_" + to_string(j) + ".png",
-				gabor[i][j]*255.f);
-				std::cout << "Gabor (" << i << ", " << j << ") weights: "<< compute_uniqueness_weight(gabor[i][j], 0.f) << " !" << std::endl;
-			}
-			feature_orientation.push_back(fuse(gabor[i], cfg.fuse_feature, true));
-
-
+			feature_orientation.push_back(fuse(gabor[i], cfg.fuse_feature));
 		}
 	}
 
@@ -732,7 +716,7 @@ Mat VOCUS2::get_salmap(){
 
 	if(cfg.combined_features){
 		conspicuity_maps.push_back(fuse(feature_color1, cfg.fuse_conspicuity));
-		if(cfg.orientation) conspicuity_maps.push_back(fuse(feature_orientation, cfg.fuse_conspicuity, true));
+		if(cfg.orientation) conspicuity_maps.push_back(fuse(feature_orientation, cfg.fuse_conspicuity));
 
 	}
 	else{
@@ -740,8 +724,21 @@ Mat VOCUS2::get_salmap(){
 		conspicuity_maps.push_back(fuse(feature_color2, cfg.fuse_conspicuity));
 		if(cfg.orientation){
 			for(int i = 0; i < 4; i++){
-				conspicuity_maps.push_back(fuse(gabor[i], cfg.fuse_feature, true));
+				conspicuity_maps.push_back(fuse(gabor[i], cfg.fuse_feature));
+				//compute_weight_by_dilation(conspicuity_maps[conspicuity_maps.size()-1], "gabor" + to_string(i+1) + ".png");
 			}
+
+			/*double ma = 0;
+			vector<double> maximas(conspicuity_maps.size());
+			for(int i = 0; i < conspicuity_maps.size(); i++)
+				minMaxLoc(conspicuity_maps[i], nullptr, &maximas[i]);
+			ma = *max_element(maximas.begin(), maximas.end());
+			for(int i = 0; i < conspicuity_maps.size(); i++){
+				normalize(conspicuity_maps[i], conspicuity_maps[i], 0, ma, NORM_MINMAX);
+				cout << "WEEEIIIGHHHTT: " << compute_weight_by_dilation(conspicuity_maps[i], "consp_" + to_string(i+1) + ".png") << endl;
+			}*/
+
+
 		}
 	}
 
@@ -749,7 +746,7 @@ Mat VOCUS2::get_salmap(){
 	for(int i = 0; i < conspicuity_maps.size(); i++){
 		double mi, ma;
 		minMaxLoc(conspicuity_maps[i], &mi, &ma);
-		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", (conspicuity_maps[i]-mi)/(ma-mi)*255.f);
+		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", conspicuity_maps[i]*255.f);
 	}
 	// saliency map
 	salmap = fuse(conspicuity_maps, cfg.fuse_conspicuity);
@@ -795,6 +792,58 @@ Mat VOCUS2::add_center_bias(float lambda){
 	}
 
 	return salmap;
+}
+
+
+float VOCUS2::compute_weight_by_dilation(const Mat &src, const std::string &filename){
+	Mat tmp;
+	threshold(src, tmp, 0.05, 1, THRESH_TOZERO);
+	int neighbor=4;
+	Mat element = getStructuringElement( MORPH_RECT,
+										 Size( 3, 3 ),
+										 Point( 1, 1) );
+	Mat peak_img = tmp.clone();
+	dilate(peak_img,peak_img,element,Point(-1,-1),neighbor);
+	peak_img = peak_img - tmp;
+
+	Mat flat_img ;
+	erode(tmp,flat_img,element,Point(-1,-1),neighbor);
+	flat_img = tmp - flat_img;
+
+	threshold(peak_img,peak_img,0,255,CV_THRESH_BINARY_INV);
+	threshold(flat_img,flat_img,0,255,CV_THRESH_BINARY_INV);
+
+	peak_img.convertTo(peak_img, CV_8UC1, 255);
+	flat_img.convertTo(flat_img, CV_8UC1, 255);
+	peak_img.setTo(Scalar::all(0),flat_img);
+
+
+
+
+	Mat src_copy;
+	src.copyTo(src_copy);
+	src_copy.convertTo(src_copy, CV_8UC1, 255);
+	//peak_img.convertTo(peak_img, CV_32FC1);
+
+	addWeighted(src_copy, 1, peak_img, 1, 0, src_copy);
+	imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/" + filename, src_copy);
+	//Mat src_copy;
+	src.copyTo(src_copy, peak_img);
+	float s = sum(src_copy)[0];
+	float p = sum(peak_img)[0]/255.f;
+	if(p==0) return 0;
+
+	std::cout << "p : " << p << std::endl;
+	std::cout << "s : " << s << std::endl;
+	double ma;
+	minMaxLoc(src, nullptr, &ma);
+	std::cout << "ma: " << ma << std::endl;
+	float m = s/p;
+	std::cout << "m: " << m << std::endl;
+	std::cout << "weight: " << ma - m << std::endl;
+	//std::cout << src_copy << std::endl;
+
+	return ma-m;
 }
 
 vector<Mat> VOCUS2::get_splitted_salmap(){
@@ -939,7 +988,44 @@ void VOCUS2::census_transform(const Mat &img, Mat &out){
  	}
 }
 
-float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
+float VOCUS2::compute_uniqueness_weight(Mat& src, float t){
+	Mat tmp;
+	threshold(src, tmp, 0.05f, 1, THRESH_TOZERO);
+	int neighbor=4;
+	Mat element = getStructuringElement( MORPH_RECT,
+										 Size( 3, 3 ),
+										 Point( 1, 1) );
+	Mat peak_img = tmp.clone();
+	dilate(peak_img,peak_img,element,Point(-1,-1),neighbor);
+	peak_img = peak_img - tmp;
+
+	Mat flat_img ;
+	erode(tmp,flat_img,element,Point(-1,-1),neighbor);
+	flat_img = tmp - flat_img;
+
+	threshold(peak_img,peak_img,0,255,CV_THRESH_BINARY_INV);
+	threshold(flat_img,flat_img,0,255,CV_THRESH_BINARY_INV);
+
+	peak_img.convertTo(peak_img, CV_8UC1, 255);
+	flat_img.convertTo(flat_img, CV_8UC1, 255);
+	peak_img.setTo(Scalar::all(0),flat_img);
+
+	Mat src_copy;
+	src.copyTo(src_copy, peak_img);
+	float s = sum(src_copy)[0];
+	float p = sum(peak_img)[0]/255.f;
+	if(p == 0) return 0;
+
+	double ma;
+	minMaxLoc(src, nullptr, &ma);
+	float m = s/p;
+
+	return ma-m;
+}
+
+
+
+/*float VOCUS2::compute_uniqueness_weight(Mat& img, float t){
 	float s = 0;
 
 	// hold maximal points
@@ -1074,30 +1160,29 @@ float VOCUS2::compute_uniqueness_weight(Mat& img, float t = 0.5){
 	}
 
 	if(n_max == 0) return 0.f;
-	/*else if(s/n_max>1) return 0.f;
+	else if(s/n_max>1) return 0.f;
 	else{
 		//std::cout << "weight is: " << 1 - s/n_max << std::endl;
-		Mat tmp;
-		resize(img, tmp, input.size(), 0, 0, INTER_CUBIC);
-		double ma;
-		minMaxLoc(img, nullptr, &ma);
-		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(ma - s/n_max) + "_"+ to_string(ma)+"_"+ to_string(s/n_max) + ".png", tmp*255.f);
+		//Mat tmp;
+		//resize(img, tmp, input.size(), 0, 0, INTER_CUBIC);
+		//double ma;
+		//minMaxLoc(img, nullptr, &ma);
+		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(ma - s/n_max) + "_"+ to_string(ma)+"_"+ to_string(s/n_max) + ".png", tmp*255.f);
 		return ma - s/n_max;
 		//return 1/sqrt(n_max);
-	}*/
-	else  {
+	}
+	/*else  {
 		//Mat tmp;
 		//resize(img, tmp, input.size(), 0, 0, INTER_CUBIC);
 		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(n_max) + ".png", tmp*255.f);
 		return 1/sqrt(n_max);
-	}
-}
-
+	}*/
+//}
 
 
 
 //Fuse maps using operation
-Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op, bool norm){
+Mat VOCUS2::fuse(vector<Mat> &maps, FusionOperation op, bool norm){
 
 	// resulting map that is returned
 	Mat fused = Mat::zeros(maps[0].size(), CV_32F);
@@ -1105,18 +1190,18 @@ Mat VOCUS2::fuse(vector<Mat> maps, FusionOperation op, bool norm){
 	vector<Mat> resized;		// temp. array to hold the resized maps
 	resized.resize(n_maps);		// reserve space (needed to use openmp for parallel resizing)
 	if(norm){
-			double ma = 0;
-			for(int i = 0; i<maps.size(); i++){
-				double temp_ma;
-				minMaxLoc(maps[i], nullptr, &temp_ma);
-				if(ma<temp_ma)
-					ma = temp_ma;
-			}
-			ma = min(1.0, ma);
+		double ma = 0;
+		vector<double> maximas(maps.size());
+		for(int i = 0; i < maps.size(); i++)
+			minMaxLoc(maps[i], nullptr, &maximas[i]);
 
-			for(int i = 0; i < maps.size(); i++){
-				normalize(maps[i], maps[i], 0, ma, NORM_MINMAX);
-			}
+		ma = *max_element(maximas.begin(), maximas.end());
+		for(int i = 0; i < maximas.size(); i++){
+			/*maximas[i] /= ma;
+			if(maximas[i]>0)
+				maps[i] /=maximas[i];*/
+			normalize(maps[i], maps[i], 0, ma, NORM_MINMAX);
+		}
 
 	}
 

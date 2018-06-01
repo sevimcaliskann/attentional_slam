@@ -742,14 +742,13 @@ Mat VOCUS2::get_salmap(){
 		}
 	}
 
-
+	// saliency map
+	salmap = fuse(conspicuity_maps, cfg.fuse_conspicuity);
 	for(int i = 0; i < conspicuity_maps.size(); i++){
 		double mi, ma;
 		minMaxLoc(conspicuity_maps[i], &mi, &ma);
 		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", conspicuity_maps[i]*255.f);
 	}
-	// saliency map
-	salmap = fuse(conspicuity_maps, cfg.fuse_conspicuity);
 
 	// normalize output to [0,1]
 	if(cfg.normalize){
@@ -1272,7 +1271,6 @@ Mat VOCUS2::fuse(vector<Mat> &maps, FusionOperation op, bool norm){
 
 	return fused;
 }
-
 vector<Mat> VOCUS2::prepare_input(const Mat& img){
 
 	CV_Assert(img.channels() == 3);

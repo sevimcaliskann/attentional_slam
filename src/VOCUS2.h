@@ -222,8 +222,12 @@ private:
 	void orientation();
 
 	// computes the uniqueness of a map by counting the local maxima
+<<<<<<< HEAD
 	float compute_uniqueness_weight(Mat& map, float t = 0.f);
 	float compute_weight_by_dilation(const Mat &img, const std::string &filename);
+=======
+	float compute_uniqueness_weight(Mat& map, float t=0.5f);
+>>>>>>> sevim
 	void census_transform(const Mat &img, Mat &out);
 
 

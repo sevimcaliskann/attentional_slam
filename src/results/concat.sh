@@ -13,4 +13,7 @@ montage "feature_intensity_0.png" "feature_intensity_1.png" -geometry 556x315 -t
 montage "feature_color_0.png" "feature_color_1.png" "feature_color_2.png" "feature_color_3.png" -geometry 556x315 -tile 1x4 "responses_collection/color_conspicuity.png"
 
 
+montage "conspicuity_0.png" "conspicuity_1.png" "conspicuity_2.png" "conspicuity_3.png" "conspicuity_4.png" "conspicuity_5.png" "conspicuity_6.png" -geometry 199x113 -tile 1x7 "responses_collection/conspicuity.png"
+
+
 

@@ -214,7 +214,7 @@ private:
 	vector<vector<Mat> > build_multiscale_pyr(Mat& img, float sigma = 1.f);
 
 	// combines a vector of Mats into a single mat
-	Mat fuse(vector<Mat> &mat_array, FusionOperation op, bool norm = false);
+	Mat fuse(vector<Mat> &mat_array, FusionOperation op, bool norm = true);
 
 	// computes the center surround contrast
 	// uses pyr_center_L
@@ -222,13 +222,9 @@ private:
 	void orientation();
 
 	// computes the uniqueness of a map by counting the local maxima
-<<<<<<< HEAD
 	float compute_uniqueness_weight(Mat& map, float t = 0.f);
 	float compute_weight_by_dilation(const Mat &img, const std::string &filename);
-=======
-	float compute_uniqueness_weight(Mat& map, float t=0.5f);
->>>>>>> sevim
-	void census_transform(const Mat &img, Mat &out);
+	void normalizeIntoNewRange(Mat &src, Mat &dst, double newMin, double newMax);
 
 
 	// void mark_equal_neighbours(int r, int c, float value, Mat& map, Mat& marked);

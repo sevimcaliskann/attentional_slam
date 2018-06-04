@@ -732,11 +732,11 @@ Mat VOCUS2::get_salmap(){
 			vector<double> maximas(conspicuity_maps.size());
 			for(int i = 0; i < conspicuity_maps.size(); i++)
 				minMaxLoc(conspicuity_maps[i], nullptr, &maximas[i]);
-			ma = *max_element(maximas.begin(), maximas.end());
+			ma = *max_element(maximas.begin(), maximas.end());*/
 			for(int i = 0; i < conspicuity_maps.size(); i++){
-				normalize(conspicuity_maps[i], conspicuity_maps[i], 0, ma, NORM_MINMAX);
+				//normalizeIntoNewRange(conspicuity_maps[i], conspicuity_maps[i], 0, ma);
 				cout << "WEEEIIIGHHHTT: " << compute_weight_by_dilation(conspicuity_maps[i], "consp_" + to_string(i+1) + ".png") << endl;
-			}*/
+			}
 
 
 		}
@@ -796,13 +796,16 @@ Mat VOCUS2::add_center_bias(float lambda){
 
 float VOCUS2::compute_weight_by_dilation(const Mat &src, const std::string &filename){
 	Mat tmp;
+	double ma;
+	minMaxLoc(src, nullptr, &ma);
+	//double thresh_val = ma*0.1;
 	threshold(src, tmp, 0.05, 1, THRESH_TOZERO);
-	int neighbor=4;
+	int neighbor=1;
 	Mat element = getStructuringElement( MORPH_RECT,
 										 Size( 3, 3 ),
 										 Point( 1, 1) );
 	Mat peak_img = tmp.clone();
-	dilate(peak_img,peak_img,element,Point(-1,-1),neighbor);
+	dilate(peak_img,peak_img,element,Point(-1,-1),neighbor );
 	peak_img = peak_img - tmp;
 
 	Mat flat_img ;
@@ -812,8 +815,8 @@ float VOCUS2::compute_weight_by_dilation(const Mat &src, const std::string &file
 	threshold(peak_img,peak_img,0,255,CV_THRESH_BINARY_INV);
 	threshold(flat_img,flat_img,0,255,CV_THRESH_BINARY_INV);
 
-	peak_img.convertTo(peak_img, CV_8UC1, 255);
-	flat_img.convertTo(flat_img, CV_8UC1, 255);
+	peak_img.convertTo(peak_img, CV_8UC1, 1);
+	flat_img.convertTo(flat_img, CV_8UC1, 1);
 	peak_img.setTo(Scalar::all(0),flat_img);
 
 
@@ -828,21 +831,21 @@ float VOCUS2::compute_weight_by_dilation(const Mat &src, const std::string &file
 	imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/" + filename, src_copy);
 	//Mat src_copy;
 	src.copyTo(src_copy, peak_img);
+
+
 	float s = sum(src_copy)[0];
 	float p = sum(peak_img)[0]/255.f;
 	if(p==0) return 0;
 
 	std::cout << "p : " << p << std::endl;
 	std::cout << "s : " << s << std::endl;
-	double ma;
-	minMaxLoc(src, nullptr, &ma);
 	std::cout << "ma: " << ma << std::endl;
 	float m = s/p;
 	std::cout << "m: " << m << std::endl;
 	std::cout << "weight: " << ma - m << std::endl;
 	//std::cout << src_copy << std::endl;
 
-	return ma-m;
+	return (ma-m)*(ma-m);
 }
 
 vector<Mat> VOCUS2::get_splitted_salmap(){
@@ -882,7 +885,6 @@ vector<Mat> VOCUS2::get_splitted_salmap(){
 
 //Build multiscale pyramid
 vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
-
 	// maximum layer = how often can the image by halfed in the smaller dimension
 	// a 320x256 can produce at most 8 layers because 2^8=256
 	int max_octaves = min((int)log2(min(mat.rows, mat.cols)), cfg.stop_layer)+1;
@@ -891,6 +893,7 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 
 	// fast compute unused first layers with one scale per layer
 	for(int o = 0; o < cfg.start_layer; o++){
+
 		GaussianBlur(tmp, tmp, Size(), 2.f*sigma, 2.f*sigma, BORDER_REPLICATE);
 		resize(tmp, tmp, Size(), 0.5, 0.5, INTER_NEAREST);
 	}
@@ -945,52 +948,10 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 	return pyr;
 }
 
-
-void VOCUS2::census_transform(const Mat &img, Mat &out){
-	unsigned int census = 0;
- 	unsigned int bit = 0;
- 	int m = 3;
- 	int n = 3;//window size
- 	int i,j,x,y;
- 	int shiftCount = 0;
-	Size imgSize = img.size();
-	out = Mat::zeros(imgSize, CV_8U);
- 	for (x = m/2; x < imgSize.height - m/2; x++)
- 	{
-   	for(y = n/2; y < imgSize.width - n/2; y++)
-   	{
-     	census = 0;
-     	shiftCount = 0;
-     	for (i = x - m/2; i <= x + m/2; i++)
-     	{
-       	for (j = y - n/2; j <= y + n/2; j++)
-       	{
-
-         	if( shiftCount != m*n/2 )//skip the center pixel
-         	{
-         		census <<= 1;
-         		if( img.at<float>(i,j) < img.at<float>(x,y) )//compare pixel values in the neighborhood
-         			bit = 1;
-         		else
-         			bit = 0;
-         		census = census + bit;
-         //cout<<census<<" ";*/
-
-         	}
-        	shiftCount ++;
-       }
-     }
-    //cout<<endl;
-
-    out.ptr<uchar>(x)[y] = census;
-   	}
- 	}
-}
-
 float VOCUS2::compute_uniqueness_weight(Mat& src, float t){
 	Mat tmp;
 	threshold(src, tmp, 0.05f, 1, THRESH_TOZERO);
-	int neighbor=4;
+	int neighbor=1;
 	Mat element = getStructuringElement( MORPH_RECT,
 										 Size( 3, 3 ),
 										 Point( 1, 1) );
@@ -1019,165 +980,15 @@ float VOCUS2::compute_uniqueness_weight(Mat& src, float t){
 	minMaxLoc(src, nullptr, &ma);
 	float m = s/p;
 
-	return ma-m;
+	return (ma-m)*(ma-m);
 }
 
-
-
-/*float VOCUS2::compute_uniqueness_weight(Mat& img, float t){
-	float s = 0;
-
-	// hold maximal points
-	vector<Point> point_maxima;
-
-	// hold maximal blobs
-	vector<vector<Point> > blob_maxima;
-
-	CV_Assert(img.channels() == 1);
-
-	// find maximum
-	double ma;
-	minMaxLoc(img, nullptr, &ma);
-
-	// ignore map if global max is too small
-	if(ma < 0.05) return 0.f;
-
-	// ignore values < some portion t of the maximal value
-	float thresh = ma*t;
-	Mat mask;
-	threshold(img, mask, thresh, 1, THRESH_BINARY_INV);
-	mask.convertTo(mask, CV_8U);
-
-	// number of maxima
-	int n_max = 0;
-
-	// for each image pixel
-	for(int r = 0; r < img.rows; r++){
-		for(int c = 0; c < img.cols; c++){
-
-			// skip marked pixel
-			if(mask.ptr<uchar>(r)[c] != 0) continue;
-
-			float val = img.ptr<float>(r)[c];
-
-			vector<Point> lower, greater, equal;
-
-			// investigate neighborhood for pixel of values
-			// greater, lower or equal to the current pixel
-			for(int dr = -1; dr <= 1; dr++){
-				for(int dc = -1; dc <= 1; dc++){
-					// skip current pixel
-					if(dr == 0 && dc == 0) continue;
-
-					// skip out of bound pixels
-					if(r+dr < 0 || r+dr >= img.rows) continue;
-					if(c+dc < 0 || c+dc >= img.cols) continue;
-
-					float tmp = img.ptr<float>(r+dr)[c+dc];
-					Point p = Point(c+dc, r+dr);
-
-					if(tmp < val) lower.push_back(p);
-					else if(tmp > val) greater.push_back(p);
-					else equal.push_back(p);
-				}
-			}
-
-			// case 1: isolated point
-			if(equal.size() == 0){
-
-				// current point is done
-				mask.ptr<uchar>(r)[c] = 1;
-
-				// all smaller neighbours are definitive no maxima
-				for(Point& p : lower) mask.ptr<uchar>(p.y)[p.x] = 1;
-
-				// if no greater neighbours => maximum
-				if(greater.size() == 0){
-					// add as maximum
-					point_maxima.push_back(Point(c,r));
-					s+=val;
-					n_max++;
-				}
-			}
-
-			// case 2: blob
-			else{
-				Mat considered = Mat::zeros(img.size(), CV_8U);
-
-				// mark all pixel as considered
-				for(Point& p : lower) considered.ptr<uchar>(p.y)[p.x] = 1;
-				for(Point& p : equal) considered.ptr<uchar>(p.y)[p.x] = 1;
-				for(Point& p : greater) considered.ptr<uchar>(p.y)[p.x] = 1;
-				considered.ptr<uchar>(r)[c] = 1;
-
-				// extent point to blob
-				int pos = 0;
-				while(pos < (int)equal.size()){
-					int nr = equal[pos].y;
-					int nc = equal[pos].x;
-
-					for(int dr = -1; dr <= 1; dr++){
-						for(int dc = -1; dc <= 1; dc++){
-							// skip current pixel
-							if(dr == 0 && dc == 0) continue;
-
-							// skip out of bound pixels
-							if(nr+dr < 0 || nr+dr >= img.rows) continue;
-							if(nc+dc < 0 || nc+dc >= img.cols) continue;
-
-							// skip considered pixels
-							if(considered.ptr<uchar>(nr+dr)[nc+dc] == 1) continue;
-
-							float tmp = img.ptr<float>(nr+dr)[nc+dc];
-							Point p = Point(nc+dc, nr+dr);
-
-							if(tmp < val) lower.push_back(p);
-							else if(tmp > val) greater.push_back(p);
-							else equal.push_back(p);
-
-							considered.ptr<uchar>(p.y)[p.x] = 1;
-						}
-					}
-					pos++;
-				}
-
-				// mark all lower neighbours (definitive no maxima)
-				for(Point& p : lower) mask.ptr<uchar>(p.y)[p.x] = 1.f;
-
-				// mark all blob pixels (maxima)
-				equal.push_back(Point(c,r));
-				for(Point& p : equal) mask.ptr<uchar>(p.y)[p.x] = 1.f;
-
-				// case 2.1: all neighbours are lower
-				if(greater.size() == 0){
-					blob_maxima.push_back(equal);
-					s+=val;
-					n_max++;
-				}
-			}
-		}
-	}
-
-	if(n_max == 0) return 0.f;
-	else if(s/n_max>1) return 0.f;
-	else{
-		//std::cout << "weight is: " << 1 - s/n_max << std::endl;
-		//Mat tmp;
-		//resize(img, tmp, input.size(), 0, 0, INTER_CUBIC);
-		//double ma;
-		//minMaxLoc(img, nullptr, &ma);
-		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(ma - s/n_max) + "_"+ to_string(ma)+"_"+ to_string(s/n_max) + ".png", tmp*255.f);
-		return ma - s/n_max;
-		//return 1/sqrt(n_max);
-	}
-	/*else  {
-		//Mat tmp;
-		//resize(img, tmp, input.size(), 0, 0, INTER_CUBIC);
-		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/map_" + to_string(n_max) + ".png", tmp*255.f);
-		return 1/sqrt(n_max);
-	}*/
-//}
-
+void VOCUS2::normalizeIntoNewRange(Mat &src, Mat &dst, double newMin, double newMax){
+	double ma, mi;
+	minMaxLoc(src, &mi, &ma);
+	double ratio = (newMax - newMin)/(ma-mi);
+	dst = (src-mi)*ratio + newMin;
+}
 
 
 //Fuse maps using operation
@@ -1199,7 +1010,7 @@ Mat VOCUS2::fuse(vector<Mat> &maps, FusionOperation op, bool norm){
 			/*maximas[i] /= ma;
 			if(maximas[i]>0)
 				maps[i] /=maximas[i];*/
-			normalize(maps[i], maps[i], 0, ma, NORM_MINMAX);
+			normalizeIntoNewRange(maps[i], maps[i], 0, ma);
 		}
 
 	}

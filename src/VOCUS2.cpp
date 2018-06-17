@@ -59,6 +59,11 @@ void VOCUS2::write_out(string dir){
 
 	std::cout << "Writing intermediate results to directory: " << dir <<"/"<< endl;
 
+	for(int i = 0; i<planes.size(); i++){
+		minMaxLoc(planes[i], &mi, &ma);
+		imwrite(dir + "/planes_" + to_string(i) + ".png", (planes[i]-mi)/(ma-mi)*255.f);
+	}
+
 	for(int i = 0; i < (int)pyr_center_L.size(); i++){
 		for(int j = 0; j < (int)pyr_center_L[i].size(); j++){
 			minMaxLoc(pyr_center_L[i][j], &mi, &ma);
@@ -109,6 +114,7 @@ void VOCUS2::write_out(string dir){
 	minMaxLoc(tmp[0], &mi, &ma);
 	imwrite(dir + "/feat_on_off_L.png", (tmp[0]-mi)/(ma-mi)*255.f);
 
+
 	tmp[1] = fuse(on_off_a, cfg.fuse_feature);
 	minMaxLoc(tmp[1], &mi, &ma);
 	imwrite(dir + "/feat_on_off_a.png", (tmp[1]-mi)/(ma-mi)*255.f);
@@ -129,6 +135,14 @@ void VOCUS2::write_out(string dir){
 	minMaxLoc(tmp[5], &mi, &ma);
 	imwrite(dir + "/feat_off_on_b.png", (tmp[5]-mi)/(ma-mi)*255.f);
 
+
+
+	//for(int i = 0; i< on_off_L.size(); i++)
+		//cout << "on_off_L_" << i << ", uniq weight: "<< compute_weight_by_dilation(on_off_L[i], "on_off_L_" + to_string(i)+".png") <<"\n";
+
+	for(int i = 0; i< off_on_L.size(); i++)
+		cout << "off_on_L_" << i << ", uniq weight: "<< compute_weight_by_dilation(off_on_L[i], "off_on_L_" + to_string(i)+".png") <<"\n";
+
 	for(int i = 0; i < 3; i++){
 		vector<Mat> tmp2;
 		tmp2.push_back(tmp[i]);
@@ -148,8 +162,23 @@ void VOCUS2::write_out(string dir){
 		imwrite(dir + "/conspicuity_" + ch + ".png", (tmp3-mi)/(ma-mi)*255.f);
 	}
 
+	cout << "on_off_L_, uniq weight: "<< compute_weight_by_dilation(tmp[0], "on_off_L.png") <<"\n";
+	cout << "off_on_L_, uniq weight: "<< compute_weight_by_dilation(tmp[3], "off_on_L.png") <<"\n";
+
+	//cout << "on_off_a_, uniq weight: "<< compute_weight_by_dilation(tmp[1], "on_off_a.png") <<"\n";
+	//cout << "off_on_a_, uniq weight: "<< compute_weight_by_dilation(tmp[4], "off_on_a.png") <<"\n";
+
+	//cout << "on_off_b_, uniq weight: "<< compute_weight_by_dilation(tmp[2], "on_off_b.png") <<"\n";
+	//cout << "off_on_b_, uniq weight: "<< compute_weight_by_dilation(tmp[5], "off_on_b.png") <<"\n";
+
 	minMaxLoc(salmap, &mi, &ma);
 	imwrite(dir + "/salmap.png", (salmap-mi)/(ma-mi)*255.f);
+
+	for(int i = 0; i < planes.size(); i++){
+		double mi, ma;
+		minMaxLoc(planes[i], &mi, &ma);
+		imwrite(dir + "/planes_" + to_string(i) + ".png", (planes[i]-mi)/(ma-mi)*255.f);
+	}
 }
 
 
@@ -173,9 +202,6 @@ void VOCUS2::write_gabors(string dir){
 
 void VOCUS2::write_out_without_normalization(string dir){
 	if(!salmap_ready) return;
-
-	double mi, ma;
-
 	std::cout << "Writing intermediate results to directory: " << dir <<"/"<< endl;
 
 	for(int i = 0; i < (int)pyr_center_L.size(); i++){
@@ -215,6 +241,11 @@ void VOCUS2::write_out_without_normalization(string dir){
 	tmp[0] = fuse(on_off_L, cfg.fuse_feature);
 	imwrite(dir + "/feat_on_off_L.png", tmp[0]*255.f);
 
+	//for(int i = 0; i< on_off_L.size(); i++)
+		//cout << "on_off_L_" << i << ", uniq weight: "<< compute_weight_by_dilation(on_off_L[i], "on_off_L_" + to_string(i)+".png") <<"\n";
+
+
+
 	tmp[1] = fuse(on_off_a, cfg.fuse_feature);
 	imwrite(dir + "/feat_on_off_a.png", tmp[1]*255.f);
 
@@ -249,6 +280,8 @@ void VOCUS2::write_out_without_normalization(string dir){
 	}
 
 	imwrite(dir + "/salmap.png", salmap*255.f);
+
+
 }
 
 void VOCUS2::process(const Mat& img){
@@ -500,20 +533,25 @@ void VOCUS2::orientation(){
 	for(int i = 0; i < 4; i++) gabor[i].resize(6);
 
 	for(int ori = 0; ori < 4; ori++){
-		int filter_size = 2*11*cfg.center_sigma+1;
-		float waveLength = 0.6;
-		Mat gaborKernel1 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, CV_PI/2);
-		Mat gaborKernel2 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, 0);
-		gaborKernel1.convertTo(gaborKernel1, CV_64FC1);
-		gaborKernel2.convertTo(gaborKernel2, CV_64FC1);
+		//int filter_size = 2*11*cfg.center_sigma+1;
+		int filter_size = 22;
+		float waveLength = 4;
+		Mat gaborKernel1 = getGaborKernel(Size(filter_size,filter_size), 2, (ori*M_PI)/4, waveLength, 0.5, CV_PI/2);
+		Mat gaborKernel2 = getGaborKernel(Size(filter_size,filter_size), 2, (ori*M_PI)/4, waveLength, 0.5, 0);
 		float u = sum(mean(gaborKernel1))[0];
 		subtract(gaborKernel1, u, gaborKernel1);
 		u = sum(mean(gaborKernel2))[0];
 		subtract(gaborKernel2, u, gaborKernel2);
 
+		//string dir_gabors = "/home/sevim/catkin_ws/src/vocus2/src/results/gabors";
+		//imwrite(dir_gabors + "/gaborKernel_" + to_string(ori) + "phase_90.png", gaborKernel1*255.f);
+		//imwrite(dir_gabors + "/gaborKernel_" + to_string(ori) + "phase_0.png", gaborKernel2*255.f);
+
+		resize(gaborKernel1, gaborKernel1, Size(), 0.5, 0.5);
+		resize(gaborKernel2, gaborKernel2, Size(), 0.5, 0.5);
+
 		//For debugging reasons, saving the gabor patches as images
-		string dir_gabors = "/home/sevim/catkin_ws/src/vocus2/src/results/gabors";
-		double ma, mi;
+
 		int pos = 0;
 		for(int o = 2; o <=4; o++){
 			for(int s = 2; s <=3; s++){
@@ -525,148 +563,45 @@ void VOCUS2::orientation(){
 
 				Mat out1, out2;
 				Mat gabor1, gabor2;
+				Mat saved1, saved2;
 
 				filter2D(src1, out1, -1, gaborKernel1, Point(-1,-1), 0, BORDER_REPLICATE);
 				filter2D(src1, out2, -1, gaborKernel2, Point(-1,-1), 0, BORDER_REPLICATE);
+				hconcat(out1, out2, saved1);
 
 				multiply(out1, out1, out1);
 				multiply(out2, out2, out2);
 				add(out1, out2, gabor1);
 				sqrt(gabor1, gabor1);
-
-
+				hconcat(saved1, gabor1, saved1);
 
 				filter2D(src2, out1, -1, gaborKernel1, Point(-1,-1), 0, BORDER_REPLICATE);
 				filter2D(src2, out2, -1, gaborKernel2, Point(-1,-1), 0, BORDER_REPLICATE);
+				hconcat(out1, out2, saved2);
 
 				multiply(out1, out1, out1);
 				multiply(out2, out2, out2);
 				add(out1, out2, gabor2);
 				sqrt(gabor2, gabor2);
+				hconcat(saved2, gabor2, saved2);
+
+				threshold(saved1, saved1, 0, 1, THRESH_TOZERO);
+				threshold(saved2, saved2, 0, 1, THRESH_TOZERO);
+				imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/gabor1Result_" + to_string(ori*45) + "_" + to_string(pos) + ".png", saved1*255.f);
+				imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/gabor2Result_" + to_string(ori*45) + "_" + to_string(pos) + ".png", saved2*255.f);
 
 				resize(gabor2, gabor2, gabor1.size());
 				dst = gabor1 - gabor2;
 				threshold(dst, dst, 0, 1, THRESH_TOZERO);
-
-				//normalize(dst, dst, 0, 1, NORM_MINMAX);
-				//dst = abs(dst);
+				//double ma, mi;
 				//minMaxLoc(dst, &mi, &ma);
-				//imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (dst-mi)/(ma-mi)*255.f);
-
-
-				//minMaxLoc(gabor1, &mi, &ma);
-				//imwrite(dir_gabors + "/gabor1_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (gabor1-mi)/(ma-mi)*255.f);
-
-				//minMaxLoc(gabor2, &mi, &ma);
-				//imwrite(dir_gabors + "/gabor2_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", (gabor2-mi)/(ma-mi)*255.f);
-
-				//minMaxLoc(src, &mi, &ma);
-				//imwrite(dir_gabors + "/laplace_" + to_string(o) + "_octave_"+ to_string(s) + ".png", (src-mi)/(ma-mi)*255.f);
+				//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/gabor_" + to_string(ori*45) + "_ " + to_string(pos) + ".png", (dst-mi)/(ma-mi)*255.f);
+				//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/gabor_" + to_string(ori*45) + "_ " + to_string(pos) + ".png", dst*255.f);
 				pos++;
 			}
 		}
 	}
 }
-
-
-
-/*void VOCUS2::orientation(){
-
-	// reserve space
-	pyr_laplace.resize(pyr_center_L.size());
-	for(int o = 0; o < (int)pyr_center_L.size(); o++){
-		pyr_laplace[o].resize(pyr_center_L[o].size());
-	}
-
-	gabor.resize(4);
-	for(int i = 0; i < 4; i++) gabor[i].resize(pyr_center_L.size()*cfg.n_scales);
-
-
-	// build all layers of laplace pyramid except the last one
-#pragma omp parallel for
-	for(int o = 0; o < (int)pyr_center_L.size()-1; o++){
-		for(int s = 0; s < (int)pyr_center_L[o].size(); s++){
-			Mat& src1 = pyr_center_L[o][s];
-			Mat& src2 = pyr_center_L[o+1][s];
-
-			Mat tmp;
-			resize(src2, tmp, src1.size(), INTER_NEAREST);
-
-			pyr_laplace[o][s] = src1-tmp;
-			threshold(pyr_laplace[o][s], pyr_laplace[o][s], 0, 1, THRESH_TOZERO);
-		}
-	}
-
-	// copy last layer
-	for(int s = 0; s < cfg.n_scales; s++){
-		pyr_laplace[pyr_center_L.size()-1][s] = pyr_center_L[pyr_center_L.size()-1][s];
-	}
-
-
-
-	#pragma omp parallel for
-	for(int ori = 0; ori < 4; ori++){
-		int filter_size = 2*11*cfg.center_sigma+1;
-		float waveLength = 0.6;
-		Mat gaborKernel1 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, CV_PI/2);
-		Mat gaborKernel2 = getGaborKernel(Size(filter_size,filter_size), 2*cfg.center_sigma, (ori*M_PI)/4, waveLength, 1.0, 0);
-		gaborKernel1.convertTo(gaborKernel1, CV_64FC1);
-		gaborKernel2.convertTo(gaborKernel2, CV_64FC1);
-		float u = sum(mean(gaborKernel1))[0];
-		subtract(gaborKernel1, u, gaborKernel1);
-		u = sum(mean(gaborKernel2))[0];
-		subtract(gaborKernel2, u, gaborKernel2);
-
-		//std::cout << "Gabor kernel 1, phase 90 summation: " << sum(mean(gaborKernel1))[0] << std::endl;
-		//std::cout << "Gabor kernel 2, phase 0 summation: " << sum(mean(gaborKernel2))[0] << std::endl;
-		//std::cout << "type: " << gaborKernel1 << std::endl << std::endl;
-
-		//For debugging reasons, saving the gabor patches as images
-		string dir_gabors = "/home/sevim/catkin_ws/src/vocus2/src/results/gabors";
-		double ma, mi;
-		//minMaxLoc(gaborKernel1, &mi, &ma);
-		//imwrite(dir_gabors + "/" + to_string(ori) + "_phase_90.png", (gaborKernel1-mi)/(ma-mi)*255.f);
-
-		//minMaxLoc(gaborKernel2, &mi, &ma);
-		//imwrite(dir_gabors + "/" + to_string(ori) + "_phase_0.png", (gaborKernel2-mi)/(ma-mi)*255.f);
-
-		for(int o = 0; o < (int)pyr_laplace.size(); o++){
-			for(int s = 0; s < cfg.n_scales; s++){
-
-
-				//float k_sum =  sum(sum(abs(gaborKernel)))[0];
-				//gaborKernel /= k_sum;
-
-				int pos = o*cfg.n_scales+s;
-
-				Mat& src = pyr_laplace[o][s];
-				//resize(src, src, input.size(), 0, 0, INTER_CUBIC);
-				Mat& dst = gabor[ori][pos];
-
-				Mat out1, out2;
-
-				filter2D(src, out1, -1, gaborKernel1, Point(-1,-1), 0, BORDER_REPLICATE);
-				filter2D(src, out2, -1, gaborKernel2, Point(-1,-1), 0, BORDER_REPLICATE);
-
-				multiply(out1, out1, out1);
-				multiply(out2, out2, out2);
-				add(out1, out2, dst);
-				sqrt(dst, dst);
-
-				//normalize(dst, dst, 0, 1, NORM_MINMAX);
-				//dst = abs(dst);
-				//minMaxLoc(dst, &mi, &ma);
-				//imwrite(dir_gabors + "/out_" + to_string(ori) + "_octave_"+ to_string(o) + "_scale_" + to_string(s) + ".png", dst*255.f);
-
-
-
-				//minMaxLoc(src, &mi, &ma);
-				//imwrite(dir_gabors + "/laplace_" + to_string(o) + "_octave_"+ to_string(s) + ".png", (src-mi)/(ma-mi)*255.f);
-			}
-		}
-	}
-}
-*/
 
 
 Mat VOCUS2::get_salmap(){
@@ -708,6 +643,8 @@ Mat VOCUS2::get_salmap(){
 		}
 	}
 
+
+
 	// conspicuity maps
 	vector<Mat> conspicuity_maps;
 	conspicuity_maps.push_back(fuse(feature_intensity, cfg.fuse_conspicuity));
@@ -725,30 +662,37 @@ Mat VOCUS2::get_salmap(){
 		if(cfg.orientation){
 			for(int i = 0; i < 4; i++){
 				conspicuity_maps.push_back(fuse(gabor[i], cfg.fuse_feature));
-				//compute_weight_by_dilation(conspicuity_maps[conspicuity_maps.size()-1], "gabor" + to_string(i+1) + ".png");
 			}
+
+			/*for(int i = 0; i < gabor[0].size(); i++){
+				cout << "WEEEIIIGHHHTT: " << compute_weight_by_dilation(gabor[0][i], "gabor_0_" + to_string(i) + ".png") << endl;
+			}*/
 
 			/*double ma = 0;
 			vector<double> maximas(conspicuity_maps.size());
 			for(int i = 0; i < conspicuity_maps.size(); i++)
 				minMaxLoc(conspicuity_maps[i], nullptr, &maximas[i]);
-			ma = *max_element(maximas.begin(), maximas.end());*/
+			ma = *max_element(maximas.begin(), maximas.end());
+			ma = std::min(1.0, ma);
 			for(int i = 0; i < conspicuity_maps.size(); i++){
-				//normalizeIntoNewRange(conspicuity_maps[i], conspicuity_maps[i], 0, ma);
+				normalizeIntoNewRange(conspicuity_maps[i], conspicuity_maps[i], 0, ma);
 				cout << "WEEEIIIGHHHTT: " << compute_weight_by_dilation(conspicuity_maps[i], "consp_" + to_string(i+1) + ".png") << endl;
-			}
+			}*/
 
 
 		}
 	}
 
 	// saliency map
-	salmap = fuse(conspicuity_maps, cfg.fuse_conspicuity);
 	for(int i = 0; i < conspicuity_maps.size(); i++){
-		double mi, ma;
-		minMaxLoc(conspicuity_maps[i], &mi, &ma);
+		//double mi, ma;
+		//minMaxLoc(conspicuity_maps[i], &mi, &ma);
+		//cout << "ma: " << ma <<", mi: " << mi << "\n";
+		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", (conspicuity_maps[i]-mi)/(ma-mi)*255.f);
 		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", conspicuity_maps[i]*255.f);
 	}
+	salmap = fuse(conspicuity_maps, cfg.fuse_conspicuity);
+
 
 	// normalize output to [0,1]
 	if(cfg.normalize){
@@ -802,8 +746,8 @@ float VOCUS2::compute_weight_by_dilation(const Mat &src, const std::string &file
 	threshold(src, tmp, 0.05, 1, THRESH_TOZERO);
 	int neighbor=1;
 	Mat element = getStructuringElement( MORPH_RECT,
-										 Size( 3, 3 ),
-										 Point( 1, 1) );
+										 Size(11, 11 ),
+										 Point( 6, 6) );
 	Mat peak_img = tmp.clone();
 	dilate(peak_img,peak_img,element,Point(-1,-1),neighbor );
 	peak_img = peak_img - tmp;
@@ -892,11 +836,11 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 	Mat tmp = mat.clone();
 
 	// fast compute unused first layers with one scale per layer
-	for(int o = 0; o < cfg.start_layer; o++){
+	/*for(int o = 0; o < cfg.start_layer; o++){
 
 		GaussianBlur(tmp, tmp, Size(), 2.f*sigma, 2.f*sigma, BORDER_REPLICATE);
 		resize(tmp, tmp, Size(), 0.5, 0.5, INTER_NEAREST);
-	}
+	}*/
 
 	// reserve space
 	vector<vector<Mat> > pyr;
@@ -917,7 +861,8 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 				Mat& src = tmp;
 
 				sig_total = pow(2.0, ((double)s/(double)cfg.n_scales))*sigma;
-				GaussianBlur(src, dst, Size(), sig_total, sig_total, BORDER_REPLICATE);
+				//GaussianBlur(src, dst, Size(), sig_total, sig_total, BORDER_REPLICATE);
+				dst=src.clone();
 				sig_prev = sig_total;
 			}
 
@@ -953,14 +898,14 @@ float VOCUS2::compute_uniqueness_weight(Mat& src, float t){
 	threshold(src, tmp, 0.05f, 1, THRESH_TOZERO);
 	int neighbor=1;
 	Mat element = getStructuringElement( MORPH_RECT,
-										 Size( 3, 3 ),
-										 Point( 1, 1) );
+										 Size( 11, 11 ),
+										 Point( 6, 6) );
 	Mat peak_img = tmp.clone();
-	dilate(peak_img,peak_img,element,Point(-1,-1),neighbor);
+	dilate(peak_img,peak_img,element,Point(-1,-1),neighbor, BORDER_REPLICATE);
 	peak_img = peak_img - tmp;
 
 	Mat flat_img ;
-	erode(tmp,flat_img,element,Point(-1,-1),neighbor);
+	erode(tmp,flat_img,element,Point(-1,-1),neighbor, BORDER_REPLICATE);
 	flat_img = tmp - flat_img;
 
 	threshold(peak_img,peak_img,0,255,CV_THRESH_BINARY_INV);
@@ -999,6 +944,7 @@ Mat VOCUS2::fuse(vector<Mat> &maps, FusionOperation op, bool norm){
 	int n_maps = maps.size();	// no. of maps to fuse
 	vector<Mat> resized;		// temp. array to hold the resized maps
 	resized.resize(n_maps);		// reserve space (needed to use openmp for parallel resizing)
+
 	if(norm){
 		double ma = 0;
 		vector<double> maximas(maps.size());
@@ -1006,6 +952,8 @@ Mat VOCUS2::fuse(vector<Mat> &maps, FusionOperation op, bool norm){
 			minMaxLoc(maps[i], nullptr, &maximas[i]);
 
 		ma = *max_element(maximas.begin(), maximas.end());
+		ma = std::min(1.0, ma);
+
 		for(int i = 0; i < maximas.size(); i++){
 			/*maximas[i] /= ma;
 			if(maximas[i]>0)
@@ -1086,7 +1034,7 @@ vector<Mat> VOCUS2::prepare_input(const Mat& img){
 
 	CV_Assert(img.channels() == 3);
 	vector<Mat> planes;
-	planes.resize(3);
+	planes.resize(5);
 
 	// convert colorspace and split to single planes
 	if(cfg.c_space == LAB){
@@ -1112,10 +1060,21 @@ vector<Mat> VOCUS2::prepare_input(const Mat& img){
 		planes[0] /= 3*255.f;
 
 		planes[1] = planes_bgr[2] - planes_bgr[1];
+		threshold(planes[1], planes[1], 0, 255, THRESH_TOZERO);
 		planes[1] /= 255.f;
 
 		planes[2] = planes_bgr[0] - (planes_bgr[1] + planes_bgr[2])/2.f;
+		threshold(planes[2], planes[2], 0, 255, THRESH_TOZERO);
 		planes[2] /= 255.f;
+
+
+		planes[3] = planes_bgr[1] - planes_bgr[2];
+		threshold(planes[3], planes[3], 0, 255, THRESH_TOZERO);
+		planes[3] /= 255.f;
+
+		planes[4] = (planes_bgr[1] + planes_bgr[2])/2.f - planes_bgr[0];
+		threshold(planes[4], planes[4], 0, 255, THRESH_TOZERO);
+		planes[4] /= 255.f;
 	}
 	else if(cfg.c_space == OPPONENT){
 		Mat converted;

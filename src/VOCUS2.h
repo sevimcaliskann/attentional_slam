@@ -78,11 +78,11 @@ public:
 		fuse_conspicuity = UNIQUENESS_WEIGHT;
 		start_layer = 0;
 		stop_layer = 8;
-		center_sigma = sqrt(2);
-		surround_sigma = sqrt(2);
+		center_sigma = 1.f;
+		surround_sigma = 1.f;
 		n_scales = 1;
 		normalize = true;
-		pyr_struct = CODI;
+		pyr_struct = CLASSIC;
     orientation = true;
 		combined_features = false;
 	};

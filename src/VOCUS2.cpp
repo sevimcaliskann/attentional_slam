@@ -140,8 +140,20 @@ void VOCUS2::write_out(string dir){
 	//for(int i = 0; i< on_off_L.size(); i++)
 		//cout << "on_off_L_" << i << ", uniq weight: "<< compute_weight_by_dilation(on_off_L[i], "on_off_L_" + to_string(i)+".png") <<"\n";
 
-	for(int i = 0; i< off_on_L.size(); i++)
-		cout << "off_on_L_" << i << ", uniq weight: "<< compute_weight_by_dilation(off_on_L[i], "off_on_L_" + to_string(i)+".png") <<"\n";
+	//for(int i = 0; i< off_on_L.size(); i++)
+		//cout << "off_on_L_" << i << ", uniq weight: "<< compute_weight_by_dilation(off_on_L[i], "off_on_L_" + to_string(i)+".png") <<"\n";
+
+	//for(int i = 0; i< on_off_a.size(); i++)
+		//cout << "on_off_a_" << i << ", uniq weight: "<< compute_weight_by_dilation(on_off_a[i], "on_off_a_" + to_string(i)+".png") <<"\n";
+
+	//for(int i = 0; i< off_on_a.size(); i++)
+		//cout << "off_on_a_" << i << ", uniq weight: "<< compute_weight_by_dilation(off_on_a[i], "off_on_a_" + to_string(i)+".png") <<"\n";
+
+	//for(int i = 0; i< on_off_b.size(); i++)
+		//cout << "on_off_b_" << i << ", uniq weight: "<< compute_weight_by_dilation(on_off_b[i], "on_off_b_" + to_string(i)+".png") <<"\n";
+
+	//for(int i = 0; i< off_on_b.size(); i++)
+		//cout << "off_on_b_" << i << ", uniq weight: "<< compute_weight_by_dilation(off_on_b[i], "off_on_b_" + to_string(i)+".png") <<"\n";
 
 	for(int i = 0; i < 3; i++){
 		vector<Mat> tmp2;
@@ -162,8 +174,8 @@ void VOCUS2::write_out(string dir){
 		imwrite(dir + "/conspicuity_" + ch + ".png", (tmp3-mi)/(ma-mi)*255.f);
 	}
 
-	cout << "on_off_L_, uniq weight: "<< compute_weight_by_dilation(tmp[0], "on_off_L.png") <<"\n";
-	cout << "off_on_L_, uniq weight: "<< compute_weight_by_dilation(tmp[3], "off_on_L.png") <<"\n";
+	//cout << "on_off_L_, uniq weight: "<< compute_weight_by_dilation(tmp[0], "on_off_L.png") <<"\n";
+	//cout << "off_on_L_, uniq weight: "<< compute_weight_by_dilation(tmp[3], "off_on_L.png") <<"\n";
 
 	//cout << "on_off_a_, uniq weight: "<< compute_weight_by_dilation(tmp[1], "on_off_a.png") <<"\n";
 	//cout << "off_on_a_, uniq weight: "<< compute_weight_by_dilation(tmp[4], "off_on_a.png") <<"\n";
@@ -240,11 +252,6 @@ void VOCUS2::write_out_without_normalization(string dir){
 
 	tmp[0] = fuse(on_off_L, cfg.fuse_feature);
 	imwrite(dir + "/feat_on_off_L.png", tmp[0]*255.f);
-
-	//for(int i = 0; i< on_off_L.size(); i++)
-		//cout << "on_off_L_" << i << ", uniq weight: "<< compute_weight_by_dilation(on_off_L[i], "on_off_L_" + to_string(i)+".png") <<"\n";
-
-
 
 	tmp[1] = fuse(on_off_a, cfg.fuse_feature);
 	imwrite(dir + "/feat_on_off_a.png", tmp[1]*255.f);
@@ -358,14 +365,14 @@ void VOCUS2::pyramid_codi(const Mat& img){
 			float scaled_center_sigma = adapted_center_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
 			float scaled_surround_sigma = adapted_surround_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
 
-			GaussianBlur(pyr_base_L[o][s], pyr_center_L[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_base_L[o][s], pyr_surround_L[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+			GaussianBlur(pyr_base_L[o][s], pyr_center_L[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REFLECT);
+			GaussianBlur(pyr_base_L[o][s], pyr_surround_L[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REFLECT);
 
-			GaussianBlur(pyr_base_a[o][s], pyr_center_a[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_base_a[o][s], pyr_surround_a[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+			GaussianBlur(pyr_base_a[o][s], pyr_center_a[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REFLECT);
+			GaussianBlur(pyr_base_a[o][s], pyr_surround_a[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REFLECT);
 
-			GaussianBlur(pyr_base_b[o][s], pyr_center_b[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_base_b[o][s], pyr_surround_b[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+			GaussianBlur(pyr_base_b[o][s], pyr_center_b[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REFLECT);
+			GaussianBlur(pyr_base_b[o][s], pyr_surround_b[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REFLECT);
 		}
 	}
 }
@@ -410,9 +417,9 @@ void VOCUS2::pyramid_new(const Mat& img){
 		for(int s = 0; s < cfg.n_scales; s++){
 			float scaled_sigma = adapted_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
 
-			GaussianBlur(pyr_center_L[o][s], pyr_surround_L[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_center_a[o][s], pyr_surround_a[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
-			GaussianBlur(pyr_center_b[o][s], pyr_surround_b[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
+			GaussianBlur(pyr_center_L[o][s], pyr_surround_L[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REFLECT);
+			GaussianBlur(pyr_center_a[o][s], pyr_surround_a[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REFLECT);
+			GaussianBlur(pyr_center_b[o][s], pyr_surround_b[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REFLECT);
 		}
 	}
 }
@@ -469,6 +476,7 @@ void VOCUS2::center_surround_diff(){
 			Mat tmp;
 			resize(pyr_surround_L[o+s][0], pyr_surround_L[o+s][0], pyr_center_L[o][0].size());
 			diff = pyr_center_L[o][0]-pyr_surround_L[o+s][0];
+
 			threshold(diff, on_off_L[pos], 0, 1, THRESH_TOZERO);
 			diff *= -1.f;
 			threshold(diff, off_on_L[pos], 0, 1, THRESH_TOZERO);
@@ -563,32 +571,32 @@ void VOCUS2::orientation(){
 
 				Mat out1, out2;
 				Mat gabor1, gabor2;
-				Mat saved1, saved2;
+				//Mat saved1, saved2;
 
 				filter2D(src1, out1, -1, gaborKernel1, Point(-1,-1), 0, BORDER_REPLICATE);
 				filter2D(src1, out2, -1, gaborKernel2, Point(-1,-1), 0, BORDER_REPLICATE);
-				hconcat(out1, out2, saved1);
+				//hconcat(out1, out2, saved1);
 
 				multiply(out1, out1, out1);
 				multiply(out2, out2, out2);
 				add(out1, out2, gabor1);
 				sqrt(gabor1, gabor1);
-				hconcat(saved1, gabor1, saved1);
+				//hconcat(saved1, gabor1, saved1);
 
 				filter2D(src2, out1, -1, gaborKernel1, Point(-1,-1), 0, BORDER_REPLICATE);
 				filter2D(src2, out2, -1, gaborKernel2, Point(-1,-1), 0, BORDER_REPLICATE);
-				hconcat(out1, out2, saved2);
+				//hconcat(out1, out2, saved2);
 
 				multiply(out1, out1, out1);
 				multiply(out2, out2, out2);
 				add(out1, out2, gabor2);
 				sqrt(gabor2, gabor2);
-				hconcat(saved2, gabor2, saved2);
+				//hconcat(saved2, gabor2, saved2);
 
-				threshold(saved1, saved1, 0, 1, THRESH_TOZERO);
-				threshold(saved2, saved2, 0, 1, THRESH_TOZERO);
-				imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/gabor1Result_" + to_string(ori*45) + "_" + to_string(pos) + ".png", saved1*255.f);
-				imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/gabor2Result_" + to_string(ori*45) + "_" + to_string(pos) + ".png", saved2*255.f);
+				//threshold(saved1, saved1, 0, 1, THRESH_TOZERO);
+				//threshold(saved2, saved2, 0, 1, THRESH_TOZERO);
+				//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/gabor1Result_" + to_string(ori*45) + "_" + to_string(pos) + ".png", saved1*255.f);
+				//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/gabor2Result_" + to_string(ori*45) + "_" + to_string(pos) + ".png", saved2*255.f);
 
 				resize(gabor2, gabor2, gabor1.size());
 				dst = gabor1 - gabor2;
@@ -685,11 +693,10 @@ Mat VOCUS2::get_salmap(){
 
 	// saliency map
 	for(int i = 0; i < conspicuity_maps.size(); i++){
-		//double mi, ma;
-		//minMaxLoc(conspicuity_maps[i], &mi, &ma);
-		//cout << "ma: " << ma <<", mi: " << mi << "\n";
-		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", (conspicuity_maps[i]-mi)/(ma-mi)*255.f);
-		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", conspicuity_maps[i]*255.f);
+		double mi, ma;
+		minMaxLoc(conspicuity_maps[i], &mi, &ma);
+		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", (conspicuity_maps[i]-mi)/(ma-mi)*255.f);
+		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", conspicuity_maps[i]*255.f);
 	}
 	salmap = fuse(conspicuity_maps, cfg.fuse_conspicuity);
 
@@ -879,7 +886,7 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 				float sig_diff = sqrt(sig_total*sig_total - sig_prev*sig_prev);
 
 				Mat& src = pyr[o][s-1];
-				GaussianBlur(src, dst, Size(), sig_diff, sig_diff, BORDER_REPLICATE);
+				GaussianBlur(src, dst, Size(), sig_diff, sig_diff, BORDER_REFLECT);
 				sig_prev = sig_total;
 			}
 		}
@@ -920,6 +927,7 @@ float VOCUS2::compute_uniqueness_weight(Mat& src, float t){
 	float s = sum(src_copy)[0];
 	float p = sum(peak_img)[0]/255.f;
 	if(p == 0) return 0;
+
 
 	double ma;
 	minMaxLoc(src, nullptr, &ma);
@@ -1034,7 +1042,7 @@ vector<Mat> VOCUS2::prepare_input(const Mat& img){
 
 	CV_Assert(img.channels() == 3);
 	vector<Mat> planes;
-	planes.resize(5);
+	planes.resize(3);
 
 	// convert colorspace and split to single planes
 	if(cfg.c_space == LAB){
@@ -1046,6 +1054,13 @@ vector<Mat> VOCUS2::prepare_input(const Mat& img){
 		// scale down to range [0:1]
 		converted /= 255.f;
 		split(converted, planes);
+
+		for(int i = 0; i < planes.size(); i++){
+			normalize(planes[i], planes[i], 0, 1, NORM_MINMAX);
+			//double ma, mi;
+			//minMaxLoc(planes[i], &mi, &ma);
+			//cout << "mi: " << mi << ", ma: " << ma << "\n";
+		}
 	}
 
 	// opponent color as in CoDi (todo: maybe faster with openmp)
@@ -1060,21 +1075,13 @@ vector<Mat> VOCUS2::prepare_input(const Mat& img){
 		planes[0] /= 3*255.f;
 
 		planes[1] = planes_bgr[2] - planes_bgr[1];
-		threshold(planes[1], planes[1], 0, 255, THRESH_TOZERO);
 		planes[1] /= 255.f;
+		planes[1] += 128.f;
+
 
 		planes[2] = planes_bgr[0] - (planes_bgr[1] + planes_bgr[2])/2.f;
-		threshold(planes[2], planes[2], 0, 255, THRESH_TOZERO);
 		planes[2] /= 255.f;
-
-
-		planes[3] = planes_bgr[1] - planes_bgr[2];
-		threshold(planes[3], planes[3], 0, 255, THRESH_TOZERO);
-		planes[3] /= 255.f;
-
-		planes[4] = (planes_bgr[1] + planes_bgr[2])/2.f - planes_bgr[0];
-		threshold(planes[4], planes[4], 0, 255, THRESH_TOZERO);
-		planes[4] /= 255.f;
+		planes[2] += 128.f;
 	}
 	else if(cfg.c_space == OPPONENT){
 		Mat converted;

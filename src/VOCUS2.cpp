@@ -213,7 +213,7 @@ void VOCUS2::write_gabors(string dir){
 
 
 void VOCUS2::write_out_without_normalization(string dir){
-	if(!salmap_ready) return;
+	//if(!salmap_ready) return;
 	std::cout << "Writing intermediate results to directory: " << dir <<"/"<< endl;
 
 	for(int i = 0; i < (int)pyr_center_L.size(); i++){
@@ -247,6 +247,9 @@ void VOCUS2::write_out_without_normalization(string dir){
 
 
 	}
+
+	for(int i = 0; i < planes.size(); i++)
+		imwrite(dir + "/planes_" + to_string(i) + ".png", planes[i]*255.f);
 
 	vector<Mat> tmp(6);
 
@@ -365,14 +368,14 @@ void VOCUS2::pyramid_codi(const Mat& img){
 			float scaled_center_sigma = adapted_center_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
 			float scaled_surround_sigma = adapted_surround_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
 
-			GaussianBlur(pyr_base_L[o][s], pyr_center_L[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REFLECT);
-			GaussianBlur(pyr_base_L[o][s], pyr_surround_L[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REFLECT);
+			GaussianBlur(pyr_base_L[o][s], pyr_center_L[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+			GaussianBlur(pyr_base_L[o][s], pyr_surround_L[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
 
-			GaussianBlur(pyr_base_a[o][s], pyr_center_a[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REFLECT);
-			GaussianBlur(pyr_base_a[o][s], pyr_surround_a[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REFLECT);
+			GaussianBlur(pyr_base_a[o][s], pyr_center_a[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+			GaussianBlur(pyr_base_a[o][s], pyr_surround_a[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
 
-			GaussianBlur(pyr_base_b[o][s], pyr_center_b[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REFLECT);
-			GaussianBlur(pyr_base_b[o][s], pyr_surround_b[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REFLECT);
+			GaussianBlur(pyr_base_b[o][s], pyr_center_b[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+			GaussianBlur(pyr_base_b[o][s], pyr_surround_b[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
 		}
 	}
 }
@@ -417,9 +420,9 @@ void VOCUS2::pyramid_new(const Mat& img){
 		for(int s = 0; s < cfg.n_scales; s++){
 			float scaled_sigma = adapted_sigma*pow(2.0, (double)s/(double)cfg.n_scales);
 
-			GaussianBlur(pyr_center_L[o][s], pyr_surround_L[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REFLECT);
-			GaussianBlur(pyr_center_a[o][s], pyr_surround_a[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REFLECT);
-			GaussianBlur(pyr_center_b[o][s], pyr_surround_b[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REFLECT);
+			GaussianBlur(pyr_center_L[o][s], pyr_surround_L[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
+			GaussianBlur(pyr_center_a[o][s], pyr_surround_a[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
+			GaussianBlur(pyr_center_b[o][s], pyr_surround_b[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
 		}
 	}
 }
@@ -469,7 +472,7 @@ void VOCUS2::center_surround_diff(){
 	int pos = 0;
 	for(int o = 2; o <=4; o++){
 #pragma omp parallel for
-		for(int s = 2; s <=3; s++){
+		for(int s = 3; s <=4; s++){
 			Mat diff;
 			//int pos = o*cfg.n_scales+s;
 			// ========== L channel ==========
@@ -552,8 +555,11 @@ void VOCUS2::orientation(){
 		subtract(gaborKernel2, u, gaborKernel2);
 
 		//string dir_gabors = "/home/sevim/catkin_ws/src/vocus2/src/results/gabors";
-		//imwrite(dir_gabors + "/gaborKernel_" + to_string(ori) + "phase_90.png", gaborKernel1*255.f);
-		//imwrite(dir_gabors + "/gaborKernel_" + to_string(ori) + "phase_0.png", gaborKernel2*255.f);
+		//double ma, mi;
+		//minMaxLoc(gaborKernel1, &mi, &ma);
+		//imwrite(dir_gabors + "/gaborKernel_" + to_string(ori) + "phase_90.png", (gaborKernel1-mi)/(ma-mi)*255.f);
+		//minMaxLoc(gaborKernel2, &mi, &ma);
+		//imwrite(dir_gabors + "/gaborKernel_" + to_string(ori) + "phase_0.png", (gaborKernel2-mi)/(ma-mi)*255.f);
 
 		resize(gaborKernel1, gaborKernel1, Size(), 0.5, 0.5);
 		resize(gaborKernel2, gaborKernel2, Size(), 0.5, 0.5);
@@ -562,7 +568,7 @@ void VOCUS2::orientation(){
 
 		int pos = 0;
 		for(int o = 2; o <=4; o++){
-			for(int s = 2; s <=3; s++){
+			for(int s = 3; s <=4; s++){
 
 				Mat& src1 = pyr_center_L[o][0];
 				Mat& src2 = pyr_surround_L[o+s][0];
@@ -672,18 +678,13 @@ Mat VOCUS2::get_salmap(){
 				conspicuity_maps.push_back(fuse(gabor[i], cfg.fuse_feature));
 			}
 
-			/*for(int i = 0; i < gabor[0].size(); i++){
+			/*for(int i = 0; i < gabor[1].size(); i++){
 				cout << "WEEEIIIGHHHTT: " << compute_weight_by_dilation(gabor[0][i], "gabor_0_" + to_string(i) + ".png") << endl;
 			}*/
 
-			/*double ma = 0;
-			vector<double> maximas(conspicuity_maps.size());
-			for(int i = 0; i < conspicuity_maps.size(); i++)
-				minMaxLoc(conspicuity_maps[i], nullptr, &maximas[i]);
-			ma = *max_element(maximas.begin(), maximas.end());
-			ma = std::min(1.0, ma);
-			for(int i = 0; i < conspicuity_maps.size(); i++){
-				normalizeIntoNewRange(conspicuity_maps[i], conspicuity_maps[i], 0, ma);
+
+			/*for(int i = 0; i < conspicuity_maps.size(); i++){
+				normalizeIntoNewRange(conspicuity_maps[i], conspicuity_maps[i], 0, 1.0f);
 				cout << "WEEEIIIGHHHTT: " << compute_weight_by_dilation(conspicuity_maps[i], "consp_" + to_string(i+1) + ".png") << endl;
 			}*/
 
@@ -692,12 +693,12 @@ Mat VOCUS2::get_salmap(){
 	}
 
 	// saliency map
-	for(int i = 0; i < conspicuity_maps.size(); i++){
-		double mi, ma;
-		minMaxLoc(conspicuity_maps[i], &mi, &ma);
-		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", (conspicuity_maps[i]-mi)/(ma-mi)*255.f);
-		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", conspicuity_maps[i]*255.f);
-	}
+	/*for(int i = 0; i < conspicuity_maps.size(); i++){
+		//double mi, ma;
+		//minMaxLoc(conspicuity_maps[i], &mi, &ma);
+		//imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", (conspicuity_maps[i]-mi)/(ma-mi)*255.f);
+		imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/conspicuity_" + to_string(i) + ".png", conspicuity_maps[i]*255.f);
+	}*/
 	salmap = fuse(conspicuity_maps, cfg.fuse_conspicuity);
 
 
@@ -886,7 +887,7 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 				float sig_diff = sqrt(sig_total*sig_total - sig_prev*sig_prev);
 
 				Mat& src = pyr[o][s-1];
-				GaussianBlur(src, dst, Size(), sig_diff, sig_diff, BORDER_REFLECT);
+				GaussianBlur(src, dst, Size(), sig_diff, sig_diff, BORDER_REPLICATE);
 				sig_prev = sig_total;
 			}
 		}
@@ -954,19 +955,19 @@ Mat VOCUS2::fuse(vector<Mat> &maps, FusionOperation op, bool norm){
 	resized.resize(n_maps);		// reserve space (needed to use openmp for parallel resizing)
 
 	if(norm){
-		double ma = 0;
-		vector<double> maximas(maps.size());
-		for(int i = 0; i < maps.size(); i++)
-			minMaxLoc(maps[i], nullptr, &maximas[i]);
+		//double ma = 0;
+		//vector<double> maximas(maps.size());
+		//for(int i = 0; i < maps.size(); i++)
+			//minMaxLoc(maps[i], nullptr, &maximas[i]);
 
-		ma = *max_element(maximas.begin(), maximas.end());
-		ma = std::min(1.0, ma);
+		//ma = *max_element(maximas.begin(), maximas.end());
+		//ma = std::min(1.0, ma);
 
-		for(int i = 0; i < maximas.size(); i++){
+		for(int i = 0; i < maps.size(); i++){
 			/*maximas[i] /= ma;
 			if(maximas[i]>0)
 				maps[i] /=maximas[i];*/
-			normalizeIntoNewRange(maps[i], maps[i], 0, ma);
+			normalizeIntoNewRange(maps[i], maps[i], 0, 1.0f);
 		}
 
 	}
@@ -1076,12 +1077,11 @@ vector<Mat> VOCUS2::prepare_input(const Mat& img){
 
 		planes[1] = planes_bgr[2] - planes_bgr[1];
 		planes[1] /= 255.f;
-		planes[1] += 128.f;
-
+		normalize(planes[1], planes[1], 0, 1, NORM_MINMAX);
 
 		planes[2] = planes_bgr[0] - (planes_bgr[1] + planes_bgr[2])/2.f;
 		planes[2] /= 255.f;
-		planes[2] += 128.f;
+		normalize(planes[2], planes[2], 0, 1, NORM_MINMAX);
 	}
 	else if(cfg.c_space == OPPONENT){
 		Mat converted;

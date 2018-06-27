@@ -73,7 +73,7 @@ class VOCUS2_Cfg{
 public:
 	// default constructor, default parameters
 	VOCUS2_Cfg(){
-		c_space = LAB;
+		c_space = OPPONENT_CODI;
 		fuse_feature = UNIQUENESS_WEIGHT;
 		fuse_conspicuity = UNIQUENESS_WEIGHT;
 		start_layer = 0;

@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(vocus2 LANGUAGES CXX CUDA)
 include(CTest)
 
-#add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 
 find_package(CUDA REQUIRED)

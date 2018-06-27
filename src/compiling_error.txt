@@ -1,0 +1,18 @@
+In file included from /usr/local/include/opencv2/core.hpp:52:0,
+                 from /usr/local/include/opencv2/highgui.hpp:46,
+                 from /usr/local/include/opencv2/highgui/highgui.hpp:48,
+                 from /home/sevim/catkin_ws/src/vocus2/src/main.cpp:24:
+/usr/local/include/opencv2/core/cvdef.h:421:4: error: #error "OpenCV 4.x+ requires enabled C++11 support"
+ #  error "OpenCV 4.x+ requires enabled C++11 support"
+    ^
+In file included from /usr/include/c++/5/array:35:0,
+                 from /usr/local/include/opencv2/core/cvdef.h:426,
+                 from /usr/local/include/opencv2/core.hpp:52,
+                 from /usr/local/include/opencv2/highgui.hpp:46,
+                 from /usr/local/include/opencv2/highgui/highgui.hpp:48,
+                 from /home/sevim/catkin_ws/src/vocus2/src/main.cpp:24:
+/usr/include/c++/5/bits/c++0x_warning.h:32:2: error: #error This file requires compiler and library support for the ISO C++ 2011 standard. This support must be enabled with the -std=c++11 or -std=gnu++11 compiler options.
+ #error This file requires compiler and library support \
+  ^
+/home/sevim/catkin_ws/src/vocus2/src/main.cpp:28:21: fatal error: ros/ros.h: No such file or directory
+compilation terminated.

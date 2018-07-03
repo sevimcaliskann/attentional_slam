@@ -15,6 +15,8 @@ montage "feature_color_0.png" "feature_color_1.png" "feature_color_2.png" "featu
 
 montage "conspicuity_0.png" "conspicuity_1.png" "conspicuity_2.png" "conspicuity_3.png" "conspicuity_4.png" "conspicuity_5.png" "conspicuity_6.png" -geometry 199x113 -tile 1x7 "responses_collection/conspicuity.png"
 
+montage "conspicuity_L.png" "conspicuity_a.png" "conspicuity_b.png" "conspicuity_0.png" "conspicuity_45.png" "conspicuity_90.png" "conspicuity_135.png" -geometry 199x113 -tile 1x7 "responses_collection/conspicuity.png"
+
 
 montage "pyr_center_L_0_0.png" "pyr_center_L_1_0.png" "pyr_center_L_2_0.png" "pyr_center_L_3_0.png" "pyr_center_L_4_0.png" "pyr_center_L_5_0.png" "pyr_center_L_6_0.png" "pyr_center_L_7_0.png" -tile 8x1 "responses_collection/pyramid_L.png"
 

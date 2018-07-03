@@ -172,6 +172,16 @@ void VOCUS2::write_out(string dir){
 
 		minMaxLoc(tmp3, &mi, &ma);
 		imwrite(dir + "/conspicuity_" + ch + ".png", (tmp3-mi)/(ma-mi)*255.f);
+		Mat u = (tmp3-mi)/(ma-mi);
+		cout << ch <<" uniqueness weight " << compute_uniqueness_weight(u) << "\n";
+	}
+
+	for(int i = 0; i < gabor.size(); i++){
+		Mat tmp = fuse(gabor[i], cfg.fuse_feature);
+		minMaxLoc(tmp, &mi, &ma);
+		imwrite(dir + "/conspicuity_" + to_string(i*45) + ".png", (tmp-mi)/(ma-mi)*255.f);
+		Mat u = (tmp-mi)/(ma-mi);
+		cout << i*45 <<" uniqueness weight " << compute_uniqueness_weight(u) << "\n";
 	}
 
 	//cout << "on_off_L_, uniq weight: "<< compute_weight_by_dilation(tmp[0], "on_off_L.png") <<"\n";
@@ -287,6 +297,11 @@ void VOCUS2::write_out_without_normalization(string dir){
 		Mat tmp3 = fuse(tmp2, cfg.fuse_feature);
 
 		imwrite(dir + "/conspicuity_" + ch + ".png", tmp3*255.f);
+	}
+
+	for(int i = 0; i < gabor.size(); i++){
+		Mat tmp = fuse(gabor[i], cfg.fuse_feature);
+		imwrite(dir + "/conspicuity_" + to_string(i*45) + ".png", tmp*255.f);
 	}
 
 	imwrite(dir + "/salmap.png", salmap*255.f);
@@ -501,42 +516,6 @@ void VOCUS2::center_surround_diff(){
 		}
 	}
 }
-
-
-/*void VOCUS2::center_surround_diff(){
-	int on_off_size = pyr_center_L.size()*cfg.n_scales;
-
-	on_off_L.resize(on_off_size); off_on_L.resize(on_off_size);
-	on_off_a.resize(on_off_size); off_on_a.resize(on_off_size);
-	on_off_b.resize(on_off_size); off_on_b.resize(on_off_size);
-
-	// compute DoG by subtracting layers of two pyramids
-	for(int o = 0; o < (int)pyr_center_L.size(); o++){
-#pragma omp parallel for
-		for(int s = 0; s < cfg.n_scales; s++){
-			Mat diff;
-			int pos = o*cfg.n_scales+s;
-
-			// ========== L channel ==========
-			diff = pyr_center_L[o][s]-pyr_surround_L[o][s];
-			threshold(diff, on_off_L[pos], 0, 1, THRESH_TOZERO);
-			diff *= -1.f;
-			threshold(diff, off_on_L[pos], 0, 1, THRESH_TOZERO);
-
-			// ========== a channel ==========
-			diff = pyr_center_a[o][s]-pyr_surround_a[o][s];
-			threshold(diff, on_off_a[pos], 0, 1, THRESH_TOZERO);
-			diff *= -1.f;
-			threshold(diff, off_on_a[pos], 0, 1, THRESH_TOZERO);
-
-			// ========== b channel ==========
-			diff = pyr_center_b[o][s]-pyr_surround_b[o][s];
-			threshold(diff, on_off_b[pos], 0, 1, THRESH_TOZERO);
-			diff *= -1.f;
-			threshold(diff, off_on_b[pos], 0, 1, THRESH_TOZERO);
-		}
-	}
-}*/
 
 void VOCUS2::orientation(){
 

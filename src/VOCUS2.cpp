@@ -83,6 +83,14 @@ void VOCUS2::write_out(string dir){
 
 			minMaxLoc(pyr_surround_b[i][j], &mi, &ma);
 			imwrite(dir + "/pyr_surround_b_" + to_string(i) + "_" + to_string(j) + ".png", (pyr_surround_b[i][j]-mi)/(ma-mi)*255.f);
+
+			if(isDepth){
+				minMaxLoc(pyr_center_depth[i][j], &mi, &ma);
+				imwrite(dir + "/pyr_center_depth_" + to_string(i) + "_" + to_string(j) + ".png", (pyr_center_depth[i][j]-mi)/(ma-mi)*255.f);
+
+				minMaxLoc(pyr_surround_depth[i][j], &mi, &ma);
+				imwrite(dir + "/pyr_surround_depth_" + to_string(i) + "_" + to_string(j) + ".png", (pyr_surround_depth[i][j]-mi)/(ma-mi)*255.f);
+			}
 		}
 	}
 
@@ -105,6 +113,14 @@ void VOCUS2::write_out(string dir){
 		minMaxLoc(off_on_b[i], &mi, &ma);
 		imwrite(dir + "/off_on_b_" + to_string(i) + ".png", (off_on_b[i]-mi)/(ma-mi)*255.f);
 
+		if(isDepth){
+			minMaxLoc(on_off_depth[i], &mi, &ma);
+			imwrite(dir + "/on_off_depth_" + to_string(i) + ".png", (on_off_depth[i]-mi)/(ma-mi)*255.f);
+
+			minMaxLoc(off_on_depth[i], &mi, &ma);
+			imwrite(dir + "/off_on_depth_" + to_string(i) + ".png", (off_on_depth[i]-mi)/(ma-mi)*255.f);
+		}
+
 
 	}
 
@@ -113,7 +129,6 @@ void VOCUS2::write_out(string dir){
 	tmp[0] = fuse(on_off_L, cfg.fuse_feature);
 	minMaxLoc(tmp[0], &mi, &ma);
 	imwrite(dir + "/feat_on_off_L.png", (tmp[0]-mi)/(ma-mi)*255.f);
-
 
 	tmp[1] = fuse(on_off_a, cfg.fuse_feature);
 	minMaxLoc(tmp[1], &mi, &ma);
@@ -174,6 +189,26 @@ void VOCUS2::write_out(string dir){
 		imwrite(dir + "/conspicuity_" + ch + ".png", (tmp3-mi)/(ma-mi)*255.f);
 		Mat u = (tmp3-mi)/(ma-mi);
 		cout << ch <<" uniqueness weight " << compute_uniqueness_weight(u) << "\n";
+	}
+
+
+	if(isDepth){
+		vector<Mat> tmp(2);
+
+		tmp[0] = fuse(on_off_depth, cfg.fuse_feature);
+		minMaxLoc(tmp[0], &mi, &ma);
+		imwrite(dir + "/feat_on_off_depth.png", (tmp[0]-mi)/(ma-mi)*255.f);
+
+		tmp[1] = fuse(off_on_depth, cfg.fuse_feature);
+		minMaxLoc(tmp[1], &mi, &ma);
+		imwrite(dir + "/feat_off_on_depth.png", (tmp[1]-mi)/(ma-mi)*255.f);
+
+		Mat depth_map = fuse(tmp, cfg.fuse_feature);
+
+		minMaxLoc(depth_map, &mi, &ma);
+		imwrite(dir + "/conspicuity_depth.png", (depth_map-mi)/(ma-mi)*255.f);
+		Mat u = (depth_map-mi)/(ma-mi);
+		cout << "depth map uniqueness weight " << compute_uniqueness_weight(u) << "\n";
 	}
 
 	for(int i = 0; i < gabor.size(); i++){
@@ -239,6 +274,13 @@ void VOCUS2::write_out_without_normalization(string dir){
 			imwrite(dir + "/pyr_surround_a_" + to_string(i) + "_" + to_string(j) + ".png", pyr_surround_a[i][j]*255.f);
 
 			imwrite(dir + "/pyr_surround_b_" + to_string(i) + "_" + to_string(j) + ".png", pyr_surround_b[i][j]*255.f);
+
+			if(isDepth){
+				imwrite(dir + "/pyr_center_depth_" + to_string(i) + "_" + to_string(j) + ".png", pyr_center_depth[i][j]*255.f);
+
+				imwrite(dir + "/pyr_surround_depth_" + to_string(i) + "_" + to_string(j) + ".png", pyr_surround_depth[i][j]*255.f);
+			}
+
 		}
 	}
 
@@ -254,6 +296,12 @@ void VOCUS2::write_out_without_normalization(string dir){
 		imwrite(dir + "/off_on_a_" + to_string(i) + ".png", off_on_a[i]*255.f);
 
 		imwrite(dir + "/off_on_b_" + to_string(i) + ".png", off_on_b[i]*255.f);
+
+		if(isDepth){
+			imwrite(dir + "/on_off_depth_" + to_string(i) + ".png", on_off_depth[i]*255.f);
+
+			imwrite(dir + "/off_on_depth_" + to_string(i) + ".png", off_on_depth[i]*255.f);
+		}
 
 
 	}
@@ -297,6 +345,21 @@ void VOCUS2::write_out_without_normalization(string dir){
 		Mat tmp3 = fuse(tmp2, cfg.fuse_feature);
 
 		imwrite(dir + "/conspicuity_" + ch + ".png", tmp3*255.f);
+	}
+
+
+	if(isDepth){
+		vector<Mat> tmp(2);
+
+		tmp[0] = fuse(on_off_depth, cfg.fuse_feature);
+		imwrite(dir + "/feat_on_off_depth.png", tmp[0]*255.f);
+
+		tmp[1] = fuse(off_on_depth, cfg.fuse_feature);
+		imwrite(dir + "/feat_off_on_depth.png", tmp[1]*255.f);
+
+		Mat depth_map = fuse(tmp, cfg.fuse_feature);
+
+		imwrite(dir + "/conspicuity_depth.png", depth_map*255.f);
 	}
 
 	for(int i = 0; i < gabor.size(); i++){
@@ -343,11 +406,14 @@ void VOCUS2::pyramid_codi(const Mat& img){
 	planes = prepare_input(img);
 
 	// create base pyramids
-	vector<vector<Mat> > pyr_base_L, pyr_base_a, pyr_base_b;
+	vector<vector<Mat> > pyr_base_L, pyr_base_depth, pyr_base_a, pyr_base_b;
 #pragma omp parallel sections
 	{
 #pragma omp section
 	pyr_base_L = build_multiscale_pyr(planes[0], 1.f);
+#pragma omp section
+	if(isDepth)
+		pyr_base_depth = build_multiscale_pyr(depthImg, 1.f);
 #pragma omp section
 	pyr_base_a = build_multiscale_pyr(planes[1], 1.f);
 #pragma omp section
@@ -361,18 +427,22 @@ void VOCUS2::pyramid_codi(const Mat& img){
 
 	// reserve space
 	pyr_center_L.resize(pyr_base_L.size());
+	pyr_center_depth.resize(pyr_base_L.size());
 	pyr_center_a.resize(pyr_base_L.size());
 	pyr_center_b.resize(pyr_base_L.size());
 	pyr_surround_L.resize(pyr_base_L.size());
+	pyr_surround_depth.resize(pyr_base_L.size());
 	pyr_surround_a.resize(pyr_base_L.size());
 	pyr_surround_b.resize(pyr_base_L.size());
 
 	// for every layer of the pyramid
 	for(int o = 0; o < (int)pyr_base_L.size(); o++){
 		pyr_center_L[o].resize(cfg.n_scales);
+		pyr_center_depth[o].resize(cfg.n_scales);
 		pyr_center_a[o].resize(cfg.n_scales);
 		pyr_center_b[o].resize(cfg.n_scales);
 		pyr_surround_L[o].resize(cfg.n_scales);
+		pyr_surround_depth[o].resize(cfg.n_scales);
 		pyr_surround_a[o].resize(cfg.n_scales);
 		pyr_surround_b[o].resize(cfg.n_scales);
 
@@ -391,6 +461,12 @@ void VOCUS2::pyramid_codi(const Mat& img){
 
 			GaussianBlur(pyr_base_b[o][s], pyr_center_b[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
 			GaussianBlur(pyr_base_b[o][s], pyr_surround_b[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+
+			if(isDepth){
+				GaussianBlur(pyr_base_depth[o][s], pyr_center_depth[o][s], Size(), scaled_center_sigma, scaled_center_sigma, BORDER_REPLICATE);
+				GaussianBlur(pyr_base_depth[o][s], pyr_surround_depth[o][s], Size(), scaled_surround_sigma, scaled_surround_sigma, BORDER_REPLICATE);
+			}
+
 		}
 	}
 }
@@ -411,6 +487,9 @@ void VOCUS2::pyramid_new(const Mat& img){
 #pragma omp section
 	pyr_center_L = build_multiscale_pyr(planes[0], (float)cfg.center_sigma);
 #pragma omp section
+if(isDepth)
+	pyr_center_depth = build_multiscale_pyr(depthImg, (float)cfg.center_sigma);
+#pragma omp section
 	pyr_center_a = build_multiscale_pyr(planes[1], (float)cfg.center_sigma);
 #pragma omp section
 	pyr_center_b = build_multiscale_pyr(planes[2], (float)cfg.center_sigma);
@@ -421,6 +500,7 @@ void VOCUS2::pyramid_new(const Mat& img){
 
 	// reserve space
 	pyr_surround_L.resize(pyr_center_L.size());
+	pyr_surround_depth.resize(pyr_center_depth.size());
 	pyr_surround_a.resize(pyr_center_a.size());
 	pyr_surround_b.resize(pyr_center_b.size());
 
@@ -429,6 +509,8 @@ void VOCUS2::pyramid_new(const Mat& img){
 		pyr_surround_L[o].resize(cfg.n_scales);
 		pyr_surround_a[o].resize(cfg.n_scales);
 		pyr_surround_b[o].resize(cfg.n_scales);
+		if(isDepth)
+			pyr_surround_depth[o].resize(cfg.n_scales);
 
 		// for all scales, compute surround counterpart
 #pragma omp parallel for
@@ -438,6 +520,8 @@ void VOCUS2::pyramid_new(const Mat& img){
 			GaussianBlur(pyr_center_L[o][s], pyr_surround_L[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
 			GaussianBlur(pyr_center_a[o][s], pyr_surround_a[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
 			GaussianBlur(pyr_center_b[o][s], pyr_surround_b[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
+			if(isDepth)
+				GaussianBlur(pyr_center_depth[o][s], pyr_surround_depth[o][s], Size(), scaled_sigma, scaled_sigma, BORDER_REPLICATE);
 		}
 	}
 }
@@ -457,6 +541,9 @@ void VOCUS2::pyramid_classic(const Mat& img){
 {
 #pragma omp section
 	pyr_center_L = build_multiscale_pyr(planes[0], (float)cfg.center_sigma);
+#pragma omp section
+if(isDepth)
+	pyr_center_depth = build_multiscale_pyr(depthImg, (float)cfg.center_sigma);
 
 #pragma omp section
 	pyr_center_a = build_multiscale_pyr(planes[1], (float)cfg.center_sigma);
@@ -466,6 +553,10 @@ void VOCUS2::pyramid_classic(const Mat& img){
 
 #pragma omp section
 	pyr_surround_L = build_multiscale_pyr(planes[0], (float)cfg.surround_sigma);
+
+#pragma omp section
+if(isDepth)
+	pyr_surround_depth = build_multiscale_pyr(depthImg, (float)cfg.surround_sigma);
 
 #pragma omp section
 	pyr_surround_a = build_multiscale_pyr(planes[1], (float)cfg.surround_sigma);
@@ -491,23 +582,31 @@ void VOCUS2::center_surround_diff(){
 			Mat diff;
 			//int pos = o*cfg.n_scales+s;
 			// ========== L channel ==========
-			Mat tmp;
+			//Mat tmp;
 			resize(pyr_surround_L[o+s][0], pyr_surround_L[o+s][0], pyr_center_L[o][0].size());
 			diff = pyr_center_L[o][0]-pyr_surround_L[o+s][0];
-
 			threshold(diff, on_off_L[pos], 0, 1, THRESH_TOZERO);
 			diff *= -1.f;
 			threshold(diff, off_on_L[pos], 0, 1, THRESH_TOZERO);
 
-			resize(pyr_surround_a[o+s][0], pyr_surround_a[o+s][0], pyr_center_a[o][0].size());
+			// ========== depth channel ==========
+			if(isDepth){
+				resize(pyr_surround_depth[o+s][0], pyr_surround_depth[o+s][0], pyr_center_depth[o][0].size());
+				diff = pyr_center_depth[o][0]-pyr_surround_depth[o+s][0];
+				threshold(diff, on_off_depth[pos], 0, 1, THRESH_TOZERO);
+				diff *= -1.f;
+				threshold(diff, off_on_depth[pos], 0, 1, THRESH_TOZERO);
+			}
+
 			// ========== a channel ==========
+			resize(pyr_surround_a[o+s][0], pyr_surround_a[o+s][0], pyr_center_a[o][0].size());
 			diff = pyr_center_a[o][0]-pyr_surround_a[o+s][0];
 			threshold(diff, on_off_a[pos], 0, 1, THRESH_TOZERO);
 			diff *= -1.f;
 			threshold(diff, off_on_a[pos], 0, 1, THRESH_TOZERO);
 
-			resize(pyr_surround_b[o+s][0], pyr_surround_b[o+s][0], pyr_center_b[o][0].size());
 			// ========== b channel ==========
+			resize(pyr_surround_b[o+s][0], pyr_surround_b[o+s][0], pyr_center_b[o][0].size());
 			diff = pyr_center_b[o][0]-pyr_surround_b[o+s][0];
 			threshold(diff, on_off_b[pos], 0, 1, THRESH_TOZERO);
 			diff *= -1.f;
@@ -613,6 +712,12 @@ Mat VOCUS2::get_salmap(){
 	feature_intensity.push_back(fuse(on_off_L, cfg.fuse_feature));
 	feature_intensity.push_back(fuse(off_on_L, cfg.fuse_feature));
 
+	vector<Mat> feature_depth;
+	if(isDepth){
+		feature_depth.push_back(fuse(on_off_depth, cfg.fuse_feature));
+		feature_depth.push_back(fuse(off_on_depth, cfg.fuse_feature));
+	}
+
 	// color feature maps
 	vector<Mat> feature_color1, feature_color2;
 
@@ -641,6 +746,9 @@ Mat VOCUS2::get_salmap(){
 	// conspicuity maps
 	vector<Mat> conspicuity_maps;
 	conspicuity_maps.push_back(fuse(feature_intensity, cfg.fuse_conspicuity));
+	if(isDepth){
+		conspicuity_maps.push_back(fuse(feature_depth, cfg.fuse_conspicuity));
+	}
 
 
 
@@ -729,7 +837,6 @@ float VOCUS2::compute_weight_by_dilation(const Mat &src, const std::string &file
 	Mat tmp;
 	double ma;
 	minMaxLoc(src, nullptr, &ma);
-	//double thresh_val = ma*0.1;
 	threshold(src, tmp, 0.05, 1, THRESH_TOZERO);
 	int neighbor=1;
 	Mat element = getStructuringElement( MORPH_RECT,
@@ -756,11 +863,9 @@ float VOCUS2::compute_weight_by_dilation(const Mat &src, const std::string &file
 	Mat src_copy;
 	src.copyTo(src_copy);
 	src_copy.convertTo(src_copy, CV_8UC1, 255);
-	//peak_img.convertTo(peak_img, CV_32FC1);
 
 	addWeighted(src_copy, 1, peak_img, 1, 0, src_copy);
 	imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/" + filename, src_copy);
-	//Mat src_copy;
 	src.copyTo(src_copy, peak_img);
 
 
@@ -774,7 +879,6 @@ float VOCUS2::compute_weight_by_dilation(const Mat &src, const std::string &file
 	float m = s/p;
 	std::cout << "m: " << m << std::endl;
 	std::cout << "weight: " << ma - m << std::endl;
-	//std::cout << src_copy << std::endl;
 
 	return (ma-m)*(ma-m);
 }
@@ -934,21 +1038,8 @@ Mat VOCUS2::fuse(vector<Mat> &maps, FusionOperation op, bool norm){
 	resized.resize(n_maps);		// reserve space (needed to use openmp for parallel resizing)
 
 	if(norm){
-		//double ma = 0;
-		//vector<double> maximas(maps.size());
-		//for(int i = 0; i < maps.size(); i++)
-			//minMaxLoc(maps[i], nullptr, &maximas[i]);
-
-		//ma = *max_element(maximas.begin(), maximas.end());
-		//ma = std::min(1.0, ma);
-
-		for(int i = 0; i < maps.size(); i++){
-			/*maximas[i] /= ma;
-			if(maximas[i]>0)
-				maps[i] /=maximas[i];*/
+		for(int i = 0; i < maps.size(); i++)
 			normalizeIntoNewRange(maps[i], maps[i], 0, 1.0f);
-		}
-
 	}
 
 	// ========== ARTIMETIC MEAN ==========
@@ -1103,4 +1194,8 @@ void VOCUS2::clear(){
 	pyr_surround_a.clear();
 	pyr_center_b.clear();
 	pyr_surround_b.clear();
+}
+
+void VOCUS2::setDepthImg(const cv::Mat &img){
+	depthImg = img.clone();
 }

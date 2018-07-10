@@ -6,7 +6,7 @@
 # $ cmake CMakeLists.txt
 # $ make
 
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project(vocus2 LANGUAGES CXX CUDA)
 include(CTest)

@@ -171,8 +171,11 @@ public:
 	void write_out(string dir);
 	void write_out_without_normalization(string dir);
 	void write_gabors(string dir);
+	void setDepthImg(const cv::Mat &img);
 
 private:
+	bool isDepth = false;
+	cv::Mat depthImg;
 	VOCUS2_Cfg cfg;
 	Mat input;
 
@@ -181,6 +184,7 @@ private:
 
 	// vectors to hold contrast pyramids as arrays
 	vector<Mat> on_off_L, off_on_L;
+	vector<Mat> on_off_depth, off_on_depth;
 	vector<Mat> on_off_a, off_on_a;
 	vector<Mat> on_off_b, off_on_b;
 
@@ -189,6 +193,7 @@ private:
 
 	// vectors to hold center and surround gaussian pyramids
 	vector<vector<Mat> > pyr_center_L, pyr_surround_L;
+	vector<vector<Mat> > pyr_center_depth, pyr_surround_depth;
 	vector<vector<Mat> > pyr_center_a, pyr_surround_a;
 	vector<vector<Mat> > pyr_center_b, pyr_surround_b;
 

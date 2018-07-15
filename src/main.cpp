@@ -197,41 +197,53 @@ int main(int argc, char* argv[]) {
 
 
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/dots2.png", CV_LOAD_IMAGE_COLOR);
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/rgb/flowers.png", CV_LOAD_IMAGE_COLOR);
+    cv::Mat depth_img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/depth/depth_flowers.png", IMREAD_GRAYSCALE);
+    depth_img.convertTo(depth_img, CV_32FC1);
+    resize(img, img, Size(), 0.5, 0.5);
+    resize(depth_img, depth_img, Size(), 0.5, 0.5);
+    //resize(img, img, Size(640, 480), 0, 0);
+    //resize(depth_img, depth_img, Size(640, 480), 0, 0);
+    cv::Rect rect(2,2,img.cols -2, img.rows-2);
+    img = img(rect);
+    depth_img = depth_img(rect);
+
     //resize(img, img, Size(), 0.5, 0.5);
     //resize(img, img, Size(512, 512));
     //Mat img(480,640, CV_8UC3, Scalar(0, 0, 0));
     //img.at<int>(240, 240) = 255;
     //resize(img, img, Size(), 0.5, 0.5);
     //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/original.png", img);
-    std::cout << "The image size : " << img.rows << ", " << img.cols << std::endl;
+    std::cout << "The image size : " << depth_img.rows << ", " << depth_img.cols << std::endl;
+    vocus.setDepthEnabled(true);
+    vocus.setDepthImg(depth_img);
     vocus.process(img);
     Mat salmap = vocus.get_salmap();
+    vocus.checkDepthMaps();
+    //vocus.print_uniq_weights(vocus.get_on_off_depth());
+    //std::cout << "\n\n";
+    //vocus.print_uniq_weights_by_mapping(vocus.get_consp_maps());
 
 
-    vector<Point> msr = get_msr(salmap);
-    //Point miP,maP;
-    //double mi2, ma2;
-    //minMaxLoc(salmap, &mi2, &ma2, &miP, &maP);
-    //cout << "mi: " << miP.x << ", " << miP.y << ", ma: " << maP.x << ", " << maP.y << "\n";
-    //cout << "mi: " << mi2 << ", ma: "<< ma2 << "\n";
-    //cout << "salmap " << salmap << "\n";
-
+    /*vector<Point> msr = get_msr(salmap);
 	  Point2f center;
 		float rad;
 		minEnclosingCircle(msr, center, rad);
-
 		if(rad >= 5 && rad <= max(img.cols, img.rows)){
 			  circle(salmap, center, (int)rad, Scalar(0,0,255), 2);
-		}
+		}*/
+
+    Point maxPoint;
+    minMaxLoc(salmap, nullptr, nullptr, nullptr, &maxPoint);
+    circle(salmap, maxPoint, 20, Scalar(0,0,255), 2);
 
     cv::namedWindow("view", WINDOW_AUTOSIZE);
     cv::imshow("view", salmap);
     cv::waitKey(3000);
 
 
-    //string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
-    //vocus.write_out(dir);
+    string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
+    vocus.write_out(dir);
 
 
 

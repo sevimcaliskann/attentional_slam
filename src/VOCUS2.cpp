@@ -229,7 +229,10 @@ void VOCUS2::write_out(string dir){
 	//cout << "off_on_b_, uniq weight: "<< compute_weight_by_dilation(tmp[5], "off_on_b.png") <<"\n";
 
 	minMaxLoc(salmap, &mi, &ma);
-	imwrite(dir + "/salmap.png", (salmap-mi)/(ma-mi)*255.f);
+	if(isDepth)
+		imwrite(dir + "/salmap_depth.png", (salmap-mi)/(ma-mi)*255.f);
+	else
+		imwrite(dir + "/salmap.png", (salmap-mi)/(ma-mi)*255.f);
 
 	for(int i = 0; i < planes.size(); i++){
 		double mi, ma;
@@ -366,8 +369,10 @@ void VOCUS2::write_out_without_normalization(string dir){
 		Mat tmp = fuse(gabor[i], cfg.fuse_feature);
 		imwrite(dir + "/conspicuity_" + to_string(i*45) + ".png", tmp*255.f);
 	}
-
-	imwrite(dir + "/salmap.png", salmap*255.f);
+	if(isDepth)
+		imwrite(dir + "/salmap_depth.png", salmap*255.f);
+	else
+		imwrite(dir + "/salmap.png", salmap*255.f);
 
 
 }
@@ -380,7 +385,6 @@ void VOCUS2::process(const Mat& img){
 	if(cfg.pyr_struct == NEW) pyramid_new(img);  // default
 	else if(cfg.pyr_struct == CODI) pyramid_codi(img);
 	else pyramid_classic(img);
-
 	// set flag indicating that the pyramids are present
 	this->processed = true;
 
@@ -564,6 +568,7 @@ if(isDepth)
 #pragma omp section
 	pyr_surround_b = build_multiscale_pyr(planes[2], (float)cfg.surround_sigma);
 }
+//std::cout << "depth size: " << pyr_center_depth[8][0].size() <<" and " << pyr_surround_depth[8][0].size() << "\n";
 }
 
 void VOCUS2::center_surround_diff(){
@@ -571,6 +576,7 @@ void VOCUS2::center_surround_diff(){
 	int on_off_size = 6;
 
 	on_off_L.resize(on_off_size); off_on_L.resize(on_off_size);
+	on_off_depth.resize(on_off_size); off_on_depth.resize(on_off_size);
 	on_off_a.resize(on_off_size); off_on_a.resize(on_off_size);
 	on_off_b.resize(on_off_size); off_on_b.resize(on_off_size);
 
@@ -744,7 +750,7 @@ Mat VOCUS2::get_salmap(){
 
 
 	// conspicuity maps
-	vector<Mat> conspicuity_maps;
+	//vector<Mat> conspicuity_maps;
 	conspicuity_maps.push_back(fuse(feature_intensity, cfg.fuse_conspicuity));
 	if(isDepth){
 		conspicuity_maps.push_back(fuse(feature_depth, cfg.fuse_conspicuity));
@@ -864,11 +870,27 @@ float VOCUS2::compute_weight_by_dilation(const Mat &src, const std::string &file
 	src.copyTo(src_copy);
 	src_copy.convertTo(src_copy, CV_8UC1, 255);
 
+	std::ofstream out;
+	std::string txt = "/home/sevim/catkin_ws/src/vocus2/src/results/weights/" + filename + ".txt";
+	out.open(txt.c_str());
+	float check = 0;
+	for(int i = 0; i < peak_img.rows; i++){
+		for(int j = 0; j < peak_img.cols; j++){
+			if(peak_img.at<uchar>(i,j)==0)
+				continue;
+			out << src.at<float>(i,j) << " ";
+			check += src.at<float>(i,j);
+		}
+		out << "\n";
+	}
+	out.close();
+	std::cout << "CHECK VALUE: " << check << "\n";
+
 	addWeighted(src_copy, 1, peak_img, 1, 0, src_copy);
-	imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/" + filename, src_copy);
+	imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/weights/" + filename + ".png", src_copy);
+
+
 	src.copyTo(src_copy, peak_img);
-
-
 	float s = sum(src_copy)[0];
 	float p = sum(peak_img)[0]/255.f;
 	if(p==0) return 0;
@@ -984,7 +1006,7 @@ vector<vector<Mat> > VOCUS2::build_multiscale_pyr(Mat& mat, float sigma){
 	return pyr;
 }
 
-float VOCUS2::compute_uniqueness_weight(Mat& src, float t){
+float VOCUS2::compute_uniqueness_weight(const Mat& src, float t){
 	Mat tmp;
 	threshold(src, tmp, 0.05f, 1, THRESH_TOZERO);
 	int neighbor=1;
@@ -1198,4 +1220,54 @@ void VOCUS2::clear(){
 
 void VOCUS2::setDepthImg(const cv::Mat &img){
 	depthImg = img.clone();
+}
+
+void VOCUS2::setDepthEnabled(const bool &val){
+	isDepth = val;
+}
+
+void VOCUS2::print_uniq_weights(const std::vector<cv::Mat> &vec){
+	for(int i = 0; i<vec.size(); i++){
+		std::cout << "For the map " << i << ", the uniqueness weight equals to: " << compute_uniqueness_weight(vec[i]) << "\n";
+	}
+}
+
+void VOCUS2::print_uniq_weights_by_mapping(const std::vector<cv::Mat> &vec){
+	for(int i = 0; i<vec.size(); i++){
+		std::cout << "For the map " << i << ", the uniqueness weight equals to: " << compute_weight_by_dilation(vec[i], "map_" + to_string(i)) << "\n";
+	}
+}
+
+std::vector<cv::Mat> VOCUS2::get_on_off_L(){return on_off_L;}
+std::vector<cv::Mat> VOCUS2::get_on_off_a(){return on_off_a;}
+std::vector<cv::Mat> VOCUS2::get_on_off_b(){return on_off_b;}
+std::vector<cv::Mat> VOCUS2::get_on_off_depth(){return on_off_depth;}
+
+std::vector<cv::Mat> VOCUS2::get_off_on_L(){return off_on_L;}
+std::vector<cv::Mat> VOCUS2::get_off_on_a(){return off_on_a;}
+std::vector<cv::Mat> VOCUS2::get_off_on_b(){return off_on_b;}
+std::vector<cv::Mat> VOCUS2::get_off_on_depth(){return off_on_depth;}
+
+std::vector<std::vector<cv::Mat> > VOCUS2::get_gabors(){return gabor;}
+
+std::vector<cv::Mat> VOCUS2::get_consp_maps(){return conspicuity_maps;}
+
+void VOCUS2::checkDepthMaps(){
+	if(isDepth){
+		vector<Mat> tmp(2);
+
+		tmp[0] = fuse(on_off_depth, cfg.fuse_feature);
+
+		tmp[1] = fuse(off_on_depth, cfg.fuse_feature);
+
+		Mat depth_map = fuse(tmp, cfg.fuse_feature);
+
+		double mi, ma;
+		minMaxLoc(depth_map, &mi, &ma);
+		Mat u = (depth_map-mi)/(ma-mi);
+		cout << "on_off_depth map uniqueness weight " << compute_uniqueness_weight(tmp[0]) << "\n";
+		cout << "off_on_depth map uniqueness weight " << compute_uniqueness_weight(tmp[1]) << "\n";
+		cout << "depth map uniqueness weight " << compute_uniqueness_weight(u) << "\n";
+	}
+
 }

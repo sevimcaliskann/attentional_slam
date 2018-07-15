@@ -172,6 +172,26 @@ public:
 	void write_out_without_normalization(string dir);
 	void write_gabors(string dir);
 	void setDepthImg(const cv::Mat &img);
+	void setDepthEnabled(const bool &val);
+	void print_uniq_weights(const std::vector<cv::Mat> &vec);
+	void print_uniq_weights_by_mapping(const std::vector<cv::Mat> &vec);
+
+
+	//Getters
+	std::vector<cv::Mat> get_on_off_L();
+	std::vector<cv::Mat> get_on_off_a();
+	std::vector<cv::Mat> get_on_off_b();
+	std::vector<cv::Mat> get_on_off_depth();
+
+	std::vector<cv::Mat> get_off_on_L();
+	std::vector<cv::Mat> get_off_on_a();
+	std::vector<cv::Mat> get_off_on_b();
+	std::vector<cv::Mat> get_off_on_depth();
+
+	std::vector<std::vector<cv::Mat> > get_gabors();
+	std::vector<cv::Mat> get_consp_maps();
+
+	void checkDepthMaps();
 
 private:
 	bool isDepth = false;
@@ -181,6 +201,7 @@ private:
 
 	Mat salmap;
 	vector<Mat> salmap_splitted, planes;
+	vector<Mat> conspicuity_maps;
 
 	// vectors to hold contrast pyramids as arrays
 	vector<Mat> on_off_L, off_on_L;
@@ -227,7 +248,7 @@ private:
 	void orientation();
 
 	// computes the uniqueness of a map by counting the local maxima
-	float compute_uniqueness_weight(Mat& map, float t = 0.f);
+	float compute_uniqueness_weight(const Mat& map, float t = 0.f);
 	float compute_weight_by_dilation(const Mat &img, const std::string &filename);
 	void normalizeIntoNewRange(Mat &src, Mat &dst, double newMin, double newMax);
 

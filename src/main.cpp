@@ -197,26 +197,21 @@ int main(int argc, char* argv[]) {
 
 
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/rgb/flowers.png", CV_LOAD_IMAGE_COLOR);
-    cv::Mat depth_img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/depth/depth_flowers.png", IMREAD_GRAYSCALE);
-    depth_img.convertTo(depth_img, CV_32FC1);
-    resize(img, img, Size(), 0.5, 0.5);
-    resize(depth_img, depth_img, Size(), 0.5, 0.5);
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/dots.png", CV_LOAD_IMAGE_COLOR);
+    //cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/rgb/pipes.png", CV_LOAD_IMAGE_COLOR);
+    //cv::Mat depth_img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/depth/depth_pipes.png", IMREAD_GRAYSCALE);
+    //depth_img.convertTo(depth_img, CV_32FC1);
+    //resize(img, img, Size(), 0.5, 0.5);
+    //resize(depth_img, depth_img, Size(), 0.5, 0.5);
     //resize(img, img, Size(640, 480), 0, 0);
     //resize(depth_img, depth_img, Size(640, 480), 0, 0);
-    cv::Rect rect(2,2,img.cols -2, img.rows-2);
-    img = img(rect);
-    depth_img = depth_img(rect);
+    //cv::Rect rect(2,2,img.cols -2, img.rows-2);
+    //img = img(rect);
+    //depth_img = depth_img(rect);
 
-    //resize(img, img, Size(), 0.5, 0.5);
-    //resize(img, img, Size(512, 512));
-    //Mat img(480,640, CV_8UC3, Scalar(0, 0, 0));
-    //img.at<int>(240, 240) = 255;
-    //resize(img, img, Size(), 0.5, 0.5);
-    //imwrite("/home/sevim/catkin_ws/src/vocus2/src/results/original.png", img);
     std::cout << "The image size : " << depth_img.rows << ", " << depth_img.cols << std::endl;
-    vocus.setDepthEnabled(true);
-    vocus.setDepthImg(depth_img);
+    //vocus.setDepthEnabled(true);
+    //vocus.setDepthImg(depth_img);
     vocus.process(img);
     Mat salmap = vocus.get_salmap();
     vocus.checkDepthMaps();

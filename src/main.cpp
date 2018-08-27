@@ -197,10 +197,11 @@ int main(int argc, char* argv[]) {
 
 
 
-    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/dots.png", CV_LOAD_IMAGE_COLOR);
-    //cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/rgb/pipes.png", CV_LOAD_IMAGE_COLOR);
-    //cv::Mat depth_img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/depth/depth_pipes.png", IMREAD_GRAYSCALE);
-    //depth_img.convertTo(depth_img, CV_32FC1);
+    //cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/CarScene.png", CV_LOAD_IMAGE_COLOR);
+    cv::Mat img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/rgb/flowers.png", CV_LOAD_IMAGE_COLOR);
+    cv::Mat depth_img = cv::imread("/home/sevim/catkin_ws/src/vocus2/images/depth/depth/depth_flowers.png", IMREAD_GRAYSCALE);
+    resize(img, img, depth_img.size(), 0, 0);
+    depth_img.convertTo(depth_img, CV_32FC1);
     //resize(img, img, Size(), 0.5, 0.5);
     //resize(depth_img, depth_img, Size(), 0.5, 0.5);
     //resize(img, img, Size(640, 480), 0, 0);
@@ -209,15 +210,16 @@ int main(int argc, char* argv[]) {
     //img = img(rect);
     //depth_img = depth_img(rect);
 
-    std::cout << "The image size : " << depth_img.rows << ", " << depth_img.cols << std::endl;
-    //vocus.setDepthEnabled(true);
-    //vocus.setDepthImg(depth_img);
+    std::cout << "The image size : " << img.rows << ", " << img.cols << std::endl;
+    vocus.setDepthEnabled(true);
+    vocus.setDepthImg(depth_img);
     vocus.process(img);
     Mat salmap = vocus.get_salmap();
     vocus.checkDepthMaps();
     //vocus.print_uniq_weights(vocus.get_on_off_depth());
     //std::cout << "\n\n";
-    //vocus.print_uniq_weights_by_mapping(vocus.get_consp_maps());
+    vocus.print_uniq_weights_by_mapping(vocus.get_off_on_a());
+
 
 
     /*vector<Point> msr = get_msr(salmap);
@@ -239,6 +241,16 @@ int main(int argc, char* argv[]) {
 
     string dir = "/home/sevim/catkin_ws/src/vocus2/src/results";
     vocus.write_out(dir);
+    //vocus.print_uniq_weights_by_mapping(vocus.get_on_off_L());
+
+    /*std::vector<std::vector<cv::Mat> > mats = vocus.get_gabors();
+    for(int i = 0; i < mats.size(); i++){
+      for(int j = 0; j < mats[i].size(); j++){
+        double mi, ma;
+        minMaxLoc(mats[i][j], &mi, &ma);
+  			imwrite(dir + "/gabors_" + to_string(i*45) + "_" + to_string(j) + ".png", (mats[i][j]-mi)/(ma-mi)*255.f);
+      }
+    }*/
 
 
 
